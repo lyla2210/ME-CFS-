@@ -75,15 +75,15 @@ export default function StepFour({ onComplete }: StepFourProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-cyan-500/30 overflow-hidden bg-slate-950/80 p-6 md:p-8 font-sans">
+    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
       
       {/* Title Header */}
-      <div className="mb-6 border-b border-cyan-500/20 pb-4">
-        <h2 id="step-four-title" className="text-xl md:text-2xl font-semibold tracking-tight text-cyan-400 font-mono flex items-center gap-2">
-          <ClipboardCheck className="h-5 w-5 text-cyan-400 animate-pulse" />
-          STAGE 04: The Gaslighting Verdict [The Perfect Lab Results]
+      <div className="mb-6 border-b border-white/10 pb-4">
+        <h2 id="step-four-title" className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2">
+          <ClipboardCheck className="h-5 w-5 text-violet-300 animate-pulse" />
+          STAGE <span className="text-violet-300">04</span>: The Gaslighting Verdict [The Perfect Lab Results]
         </h2>
-        <p className="text-slate-400 text-xs mt-1 leading-relaxed border-l border-cyan-500/20 pl-2">
+        <p className="text-slate-400 text-xs mt-1 leading-relaxed border-l border-white/10 pl-2">
           The deepest abyss of ME/CFS lies in conventional diagnostic limitations. Despite extreme underlying distress and systemic collapse, routine clinical indicators (Complete Blood Count, Thyroid profile, ECG, Standard MRI) return looking entirely clear. This leaves patients vulnerable to clinical skepticism, labelled with psychosomatic terms while enduring severe neurological crises.
         </p>
       </div>
@@ -99,7 +99,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
           >
             {/* Symptom questionnaire input */}
             <div className="lg:col-span-7 space-y-4">
-              <h3 className="text-xs font-semibold text-cyan-400 tracking-wider font-mono">
+              <h3 className="text-xs font-semibold text-white/70 tracking-wider font-mono">
                 [SECTION A] Subjective Patient Symptoms [Patient Log]
               </h3>
 
@@ -108,7 +108,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                 <div>
                   <div className="flex justify-between text-xs font-mono mb-1">
                     <span className="text-slate-300">Systemic Exhaustion Score [Fatigue Level]</span>
-                    <span className="text-rose-450 font-bold text-rose-400">{record.fatigueLevel} / 10</span>
+                    <span className="accent-score">{record.fatigueLevel} / 10</span>
                   </div>
                   <input
                     type="range"
@@ -116,7 +116,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                     max="10"
                     value={record.fatigueLevel}
                     onChange={(e) => setRecord({ ...record, fatigueLevel: parseInt(e.target.value) })}
-                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-violet-400"
                   />
                 </div>
 
@@ -124,7 +124,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                 <div>
                   <div className="flex justify-between text-xs font-mono mb-1">
                     <span className="text-slate-300">Synaptic Fog Intensity [Cognitive Fog]</span>
-                    <span className="text-rose-455 font-bold text-rose-400">{record.brainFog} / 10</span>
+                    <span className="accent-score">{record.brainFog} / 10</span>
                   </div>
                   <input
                     type="range"
@@ -132,7 +132,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                     max="10"
                     value={record.brainFog}
                     onChange={(e) => setRecord({ ...record, brainFog: parseInt(e.target.value) })}
-                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-violet-400"
                   />
                 </div>
 
@@ -140,7 +140,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                 <div>
                   <div className="flex justify-between text-xs font-mono mb-1">
                     <span className="text-slate-300">Multifocal Joint & Muscle Pain [Widespread Pain]</span>
-                    <span className="text-rose-455 font-bold text-rose-400">{record.musclePain} / 10</span>
+                    <span className="accent-score">{record.musclePain} / 10</span>
                   </div>
                   <input
                     type="range"
@@ -148,7 +148,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                     max="10"
                     value={record.musclePain}
                     onChange={(e) => setRecord({ ...record, musclePain: parseInt(e.target.value) })}
-                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-violet-400"
                   />
                 </div>
 
@@ -156,7 +156,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                 <div>
                   <div className="flex justify-between text-xs font-mono mb-1">
                     <span className="text-slate-300">Unrefreshing Quality Score [Non-Restorative Sleep]</span>
-                    <span className="text-rose-455 font-bold text-rose-400">{record.sleepQuality} / 10</span>
+                    <span className="accent-score">{record.sleepQuality} / 10</span>
                   </div>
                   <input
                     type="range"
@@ -164,7 +164,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                     max="10"
                     value={record.sleepQuality}
                     onChange={(e) => setRecord({ ...record, sleepQuality: parseInt(e.target.value) })}
-                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                    className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-violet-400"
                   />
                 </div>
 
@@ -175,7 +175,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                       type="checkbox"
                       checked={record.postExertionalMalaise}
                       onChange={(e) => setRecord({ ...record, postExertionalMalaise: e.target.checked })}
-                      className="rounded border-slate-800 bg-slate-950 text-cyan-400 focus:ring-0 h-4 w-4"
+                      className="accent-checkbox focus:ring-violet-400/30 focus:ring-1"
                     />
                     <span>Post-Exertional Malaise ⚠(PEM)</span>
                   </label>
@@ -184,7 +184,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                       type="checkbox"
                       checked={record.orthostaticIntolerance}
                       onChange={(e) => setRecord({ ...record, orthostaticIntolerance: e.target.checked })}
-                      className="rounded border-slate-800 bg-slate-950 text-cyan-400 focus:ring-0 h-4 w-4"
+                      className="accent-checkbox focus:ring-violet-400/30 focus:ring-1"
                     />
                     <span>Orthostatic Intolerance (Postural PoTS)</span>
                   </label>
@@ -197,7 +197,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                     id="clinical-statement"
                     value={record.additionalNotes}
                     onChange={(e) => setRecord({ ...record, additionalNotes: e.target.value })}
-                    className="w-full h-24 bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none leading-relaxed font-mono resize-none"
+                    className="w-full h-24 bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-200 focus:border-white/20 focus:outline-none leading-relaxed font-mono resize-none"
                     placeholder="Describe your active visceral sensations, physical limitations and autonomic concerns..."
                   />
                 </div>
@@ -207,7 +207,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
             {/* Simulated Medical Sensor Scan options and scanner preview */}
             <div className="lg:col-span-5 flex flex-col justify-between p-5 border border-slate-800 bg-slate-900/60 rounded">
               <div className="space-y-4">
-                <h3 className="text-xs font-semibold text-cyan-400 tracking-wider font-mono">
+                <h3 className="text-xs font-semibold text-white/70 tracking-wider font-mono">
                   [SECTION B] Clinical Biometric Sensors [Biometrics Panel]
                 </h3>
 
@@ -223,7 +223,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                         type="number"
                         value={pulse}
                         onChange={(e) => setPulse(parseInt(e.target.value) || 72)}
-                        className="bg-transparent text-right w-12 border-b border-slate-800 focus:border-cyan-400 outline-none text-cyan-400 font-bold"
+                        className="bg-transparent text-right w-12 border-b border-slate-800 focus:border-white/20 outline-none text-violet-300 font-bold"
                         min="40"
                         max="200"
                       />
@@ -234,10 +234,10 @@ export default function StepFour({ onComplete }: StepFourProps) {
                   {/* Body Temperature */}
                   <div className="p-3 bg-slate-950 border border-slate-850 rounded flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Activity className="h-4 w-4 text-cyan-400" />
+                      <Activity className="h-4 w-4 text-violet-300" />
                       <span className="text-slate-400">Core Body Temp:</span>
                     </div>
-                    <span className="text-cyan-400 font-bold">36.6 °C</span>
+                    <span className="text-violet-300 font-bold">36.6 °C</span>
                   </div>
 
                   {/* Diagnostic MRI */}
@@ -250,7 +250,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                 </div>
 
                 <div className="text-[11px] text-slate-400 leading-normal font-mono bg-slate-950/40 p-2.5 rounded border border-slate-855 flex items-start gap-2">
-                  <Info className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <Info className="h-4 w-4 text-violet-300 shrink-0 mt-0.5" />
                   <span>
                     Initiate quantitative metabolic target testing. Diagnostic systems will cross-reference resting parameters, neuroglandular outputs, and multiple vital assays.
                   </span>
@@ -262,7 +262,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
                 <button
                   id="run-clinical-scan"
                   onClick={triggerScan}
-                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded flex items-center justify-center gap-2 transition-all font-mono shadow-[0_0_12px_rgba(34,211,238,0.3)] cursor-pointer"
+                  className="w-full py-3 accent-btn font-bold rounded flex items-center justify-center gap-2 font-mono cursor-pointer"
                 >
                   <Activity className="h-4 w-4 animate-spin text-slate-950" />
                   Deliver Biomarker Mass Assay Scan
@@ -289,24 +289,24 @@ export default function StepFour({ onComplete }: StepFourProps) {
             id="scanner-active-view"
           >
             <div className="relative h-24 w-24 flex items-center justify-center mb-6">
-              <div className="absolute inset-0 border border-dashed border-cyan-500/20 rounded-full animate-[spin_10s_infinite_linear]" />
-              <div className="absolute inset-2 border-2 border-cyan-400/50 rounded-full animate-ping" />
-              <div className="absolute inset-4 border border-dashed border-cyan-400 rounded-full animate-[spin_5s_infinite_linear_reverse]" />
-              <Heart className="h-8 w-8 text-cyan-400 animate-pulse" />
+              <div className="absolute inset-0 border border-dashed border-white/10 rounded-full animate-[spin_10s_infinite_linear]" />
+              <div className="absolute inset-2 border-2 border-violet-400/40 rounded-full animate-ping" />
+              <div className="absolute inset-4 border border-dashed border-white/20 rounded-full animate-[spin_5s_infinite_linear_reverse]" />
+              <Heart className="h-8 w-8 text-rose-400 animate-pulse" />
             </div>
 
             <div className="w-80 bg-slate-900 border border-slate-805 p-4 rounded text-left">
-              <div className="flex justify-between items-center text-xs font-mono text-cyan-400 font-bold mb-2">
+              <div className="flex justify-between items-center text-xs font-mono text-violet-300 font-bold mb-2">
                 <span className="flex items-center gap-1 leading-none">
-                  <div className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
+                  <div className="h-2 w-2 rounded-full accent-dot animate-ping" />
                   Aligning multi-stage biomarkers:
                 </span>
-                <span>{scanProgress}%</span>
+                <span className="accent-score">{scanProgress}%</span>
               </div>
               
-              <div className="w-full bg-slate-950 h-2 rounded overflow-hidden">
+              <div className="w-full accent-progress-track h-2 rounded overflow-hidden">
                 <div 
-                  className="h-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] transition-all duration-150"
+                  className="h-full accent-progress transition-all duration-150"
                   style={{ width: `${scanProgress}%` }}
                 />
               </div>
@@ -508,7 +508,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
               <button
                 id="finish-simulation-final"
                 onClick={() => { playClick(1200); onComplete(); }}
-                className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold font-mono rounded flex items-center gap-1 transition-all shadow-[0_0_12px_rgba(34,211,238,0.35)] cursor-pointer"
+                className="px-5 py-2.5 accent-btn text-xs font-bold font-mono rounded flex items-center gap-1 cursor-pointer"
               >
                 Complete Simulation & View Summary Reflections
                 <ArrowRight className="h-4 w-4" />

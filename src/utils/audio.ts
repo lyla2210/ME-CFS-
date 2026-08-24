@@ -134,3 +134,14 @@ export function playChime() {
     // Ignore Context blocked
   }
 }
+
+// 5. Room hotspot hover — distinct pitch per room order
+export function playRoomHover(roomOrder: number) {
+  const freqs = [392, 440, 494, 523]; // G4 → C5 ascending
+  playClick(freqs[Math.min(3, Math.max(0, roomOrder - 1))] ?? 440, 0.055);
+}
+
+// 6. Locked room — muted low tone
+export function playRoomLocked() {
+  playClick(180, 0.07);
+}

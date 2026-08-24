@@ -14,7 +14,6 @@ export default function CyberGrid() {
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
     let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
 
-    // Mouse coordinates initialization
     let targetMouseX = width / 2;
     let targetMouseY = height / 2;
     let glowMouseX = width / 2;
@@ -28,7 +27,6 @@ export default function CyberGrid() {
 
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Data streams
     interface DataStream {
       x: number;
       y: number;
@@ -39,21 +37,22 @@ export default function CyberGrid() {
     }
 
     const streams: DataStream[] = [];
-    const streamCount = 55; // Elevated stream count for better data flow visibility
-    const streamChars = "01010101XXXXXXXXX_SYS_OK_ERR_ATPHALT_LOG".split("");
+    const streamCount = 48;
+    const streamChars = '01010101_SYS_OK_ERR_HALT_LOG'.split('');
 
     for (let i = 0; i < streamCount; i++) {
       streams.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        speed: 0.4 + Math.random() * 1.6,
-        length: 6 + Math.floor(Math.random() * 12),
-        opacity: 0.08 + Math.random() * 0.25, // Increased prominence opacity range
-        charList: Array(18).fill(0).map(() => streamChars[Math.floor(Math.random() * streamChars.length)])
+        speed: 0.35 + Math.random() * 1.2,
+        length: 6 + Math.floor(Math.random() * 10),
+        opacity: 0.05 + Math.random() * 0.14,
+        charList: Array(16)
+          .fill(0)
+          .map(() => streamChars[Math.floor(Math.random() * streamChars.length)]),
       });
     }
 
-    // Glowing background base rotation
     let glowAngle = 0;
 
     const handleResize = () => {
@@ -65,44 +64,49 @@ export default function CyberGrid() {
     window.addEventListener('resize', handleResize);
 
     const draw = () => {
-      // Background clear
-      ctx.fillStyle = '#0a0a0c'; // absolute slate dark
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
 
-      // 1. Base organic ambient glows
-      glowAngle += 0.001;
-      const glowX1 = width * 0.25 + Math.cos(glowAngle) * 40;
-      const glowY1 = height * 0.25 + Math.sin(glowAngle) * 40;
-
-      const radGlow1 = ctx.createRadialGradient(glowX1, glowY1, 10, glowX1, glowY1, Math.max(300, width * 0.4));
-      radGlow1.addColorStop(0, 'rgba(124, 58, 237, 0.05)'); // violet base
-      radGlow1.addColorStop(0.5, 'rgba(76, 29, 149, 0.01)');
+      // ambient drift
+      glowAngle += 0.0008;
+      const glowX1 = width * 0.3 + Math.cos(glowAngle) * 30;
+      const glowY1 = height * 0.3 + Math.sin(glowAngle) * 30;
+      const radGlow1 = ctx.createRadialGradient(
+        glowX1,
+        glowY1,
+        10,
+        glowX1,
+        glowY1,
+        Math.max(280, width * 0.35)
+      );
+      radGlow1.addColorStop(0, 'rgba(120, 120, 140, 0.04)');
       radGlow1.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radGlow1;
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Smoothly interpolated mouse follow trail diffuse glow (Dynamic Spotlight)
+      // mouse follow gradient spotlight — preserved
       glowMouseX += (targetMouseX - glowMouseX) * 0.06;
       glowMouseY += (targetMouseY - glowMouseY) * 0.06;
 
       const radMouseGlow = ctx.createRadialGradient(
-        glowMouseX, 
-        glowMouseY, 
-        0, 
-        glowMouseX, 
-        glowMouseY, 
-        Math.max(260, width * 0.22)
+        glowMouseX,
+        glowMouseY,
+        0,
+        glowMouseX,
+        glowMouseY,
+        Math.max(240, width * 0.2)
       );
-      radMouseGlow.addColorStop(0, 'rgba(6, 182, 212, 0.12)');  // cyan core focus
-      radMouseGlow.addColorStop(0.4, 'rgba(124, 58, 237, 0.05)'); // indigo mid spectrum
-      radMouseGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');          // smooth boundary
+      radMouseGlow.addColorStop(0, 'rgba(196, 181, 253, 0.09)');
+      radMouseGlow.addColorStop(0.35, 'rgba(167, 139, 250, 0.05)');
+      radMouseGlow.addColorStop(0.7, 'rgba(139, 92, 246, 0.025)');
+      radMouseGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radMouseGlow;
       ctx.fillRect(0, 0, width, height);
 
-      // High-tech subtle grid pattern
-      ctx.strokeStyle = 'rgba(99, 102, 241, 0.015)'; // Indigo grid
+      // subtle grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.018)';
       ctx.lineWidth = 1;
-      const gridSpace = 60;
+      const gridSpace = 64;
       for (let x = 0; x < width; x += gridSpace) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -116,28 +120,26 @@ export default function CyberGrid() {
         ctx.stroke();
       }
 
-      // Draw flowing data packet streams
-      ctx.font = 'bold 9px monospace';
+      // data streams — minimal white/gray
+      ctx.font = '9px monospace';
       streams.forEach((stream) => {
         for (let j = 0; j < stream.length; j++) {
           const char = stream.charList[j % stream.charList.length];
           const streamY = (stream.y + j * 12) % height;
 
-          // Introduce fading gradient downwards & white head highlights for visual realism
           if (j === stream.length - 1) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1.0, stream.opacity * 2.2 + 0.25)})`;
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.55, stream.opacity * 2 + 0.12)})`;
           } else {
-            ctx.fillStyle = `rgba(34, 211, 238, ${stream.opacity * (j / stream.length)})`;
+            ctx.fillStyle = `rgba(160, 160, 170, ${stream.opacity * (j / stream.length)})`;
           }
           ctx.fillText(char, stream.x, streamY);
         }
 
-        // Move vertical stream down
         stream.y += stream.speed;
 
-        // Jitter characters occasionally to simulation data shift
-        if (Math.random() > 0.982) {
-          stream.charList[Math.floor(Math.random() * stream.charList.length)] = streamChars[Math.floor(Math.random() * streamChars.length)];
+        if (Math.random() > 0.985) {
+          stream.charList[Math.floor(Math.random() * stream.charList.length)] =
+            streamChars[Math.floor(Math.random() * streamChars.length)];
         }
       });
 
@@ -157,8 +159,7 @@ export default function CyberGrid() {
     <canvas
       id="cyber-grid-canvas-bg"
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none opacity-95"
-      style={{ mixBlendMode: 'screen' }}
+      className="absolute inset-0 w-full h-full pointer-events-none opacity-90"
     />
   );
 }

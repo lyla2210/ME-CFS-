@@ -15,7 +15,7 @@ const POSTURES = [
   },
   {
     title: "Posture B: Frontal Finger Pressure & Fixed Gaze",
-    detail: "Press your palms together and place both index fingers firmly against the center of your forehead. Keep your eyes wide open, staring intently at the flickering cyan dot. Do not blink.",
+    detail: "Press your palms together and place both index fingers firmly against the center of your forehead. Keep your eyes wide open, staring intently at the flickering white dot. Do not blink.",
     energyCost: "Autonomic Stress: Hyper-Arousal",
   },
   {
@@ -121,15 +121,15 @@ export default function StepOne({ onComplete }: StepOneProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-cyan-500/30 overflow-hidden bg-slate-950/80 p-6 md:p-8 font-sans">
+    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
       
       {/* Header and Introduction */}
-      <div className="mb-6 border-b border-cyan-500/20 pb-4">
+      <div className="mb-6 border-b border-white/10 pb-4">
         <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
           <div>
-            <h2 id="step-one-title" className="text-xl md:text-2xl font-semibold tracking-tight text-cyan-400 font-mono flex items-center gap-2">
-              <Zap className="h-5 w-5 animate-pulse text-cyan-400" />
-              STAGE 01: The Impossible Rest [Non-Restorative Sleep]
+            <h2 id="step-one-title" className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2">
+              <Zap className="h-5 w-5 animate-pulse text-violet-300" />
+              STAGE <span className="text-violet-300">01</span>: The Impossible Rest [Non-Restorative Sleep]
             </h2>
             <p className="text-slate-400 text-xs mt-1 leading-relaxed">
               Healthy people recharge via sleep. For ME/CFS patients, sleep acts like charging a battery with a critical leak—it fails to restore cellular energy (ATP). This stage simulates this unreachable sense of tranquility.
@@ -137,8 +137,8 @@ export default function StepOne({ onComplete }: StepOneProps) {
           </div>
           
           {/* Mode Indicator */}
-          <div className="flex items-center gap-2 bg-slate-905 border border-cyan-500/20 px-3 py-1.5 rounded text-xs font-mono text-cyan-400 bg-cyan-950/20">
-            <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+          <div className="flex items-center gap-2 border border-white/10 px-3 py-1.5 rounded text-xs font-mono text-white/70 bg-white/5">
+            <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse accent-dot" />
             <span>3-MIN PEM IMMERSION</span>
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
         {/* Left Control Column */}
         <div className="lg:col-span-5 flex flex-col justify-between p-5 border border-slate-800 bg-slate-900/60 rounded">
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold text-cyan-400 tracking-wider font-mono">PHYSIOLOGICAL SIMULATOR</h3>
+            <h3 className="text-xs font-semibold text-white/70 tracking-wider font-mono">PHYSIOLOGICAL SIMULATOR</h3>
             
             {/* Round display status */}
             <div className="py-2 border-y border-slate-800">
@@ -159,7 +159,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
               </div>
               <div className="flex justify-between text-xs font-mono text-slate-400 mt-2">
                 <span>Cellular Reserve [ATP]:</span>
-                <span className="text-cyan-400 font-bold">12% (Depleted State)</span>
+                <span className="text-violet-300 font-bold">12% (Depleted State)</span>
               </div>
               <div className="flex justify-between text-xs font-mono text-slate-400 mt-2">
                 <span>Sleep Efficiency:</span>
@@ -168,9 +168,9 @@ export default function StepOne({ onComplete }: StepOneProps) {
             </div>
 
             {/* Instruction Callout */}
-            <div className="text-slate-300 text-xs bg-slate-950/65 p-3 rounded-md leading-relaxed border-l-2 border-cyan-400 font-mono">
-              <span className="text-cyan-400 font-semibold block mb-1">Physical Instructions:</span>
-              1. Rest back, close your eyes, and click <span className="text-cyan-300 font-semibold">Start Charging</span>.<br />
+            <div className="text-slate-300 text-xs bg-slate-950/65 p-3 rounded-md leading-relaxed border-l-2 border-white/20 font-mono">
+              <span className="text-white/75 font-semibold block mb-1">Physical Instructions:</span>
+              1. Rest back, close your eyes, and click <span className="text-white/85 font-semibold">Start Charging</span>.<br />
               2. When the battery timer ends, autonomic charge will be physically interrupted.<br />
               3. You must enact the corresponding posture shown on the right in real life, and <span className="text-amber-400 font-bold">Hold the Sensor Button</span> to re-align your threshold, or the leak timer will halt indefinitely.
             </div>
@@ -182,7 +182,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
               <button
                 id="reset-battery-btn"
                 onClick={handleStart}
-                className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-600 text-slate-950 font-bold rounded flex items-center justify-center gap-2 transition-all font-mono shadow-[0_0_12px_rgba(34,211,238,0.3)] cursor-pointer"
+                className="w-full py-3 accent-btn font-bold rounded flex items-center justify-center gap-2 font-mono cursor-pointer"
               >
                 <Play className="h-4 w-4 fill-slate-950" />
                 Start Rest Simulation
@@ -191,9 +191,9 @@ export default function StepOne({ onComplete }: StepOneProps) {
               <button
                 id="charge-pause-btn"
                 onClick={handlePause}
-                className="w-full py-3 border border-cyan-500/40 text-cyan-400 hover:bg-cyan-550/10 active:bg-cyan-500/20 font-mono rounded flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full py-3 accent-btn-ghost hover:bg-white/5 font-mono rounded flex items-center justify-center gap-2 cursor-pointer"
               >
-                <div className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
+                <div className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
                 Attempting to sleep...
               </button>
             ) : null}
@@ -234,14 +234,14 @@ export default function StepOne({ onComplete }: StepOneProps) {
                   cx="80"
                   cy="80"
                   r="74"
-                  className="stroke-cyan-500/10 fill-none"
+                  className="stroke-white/10 fill-none"
                   strokeWidth="4"
                 />
                 <circle
                   cx="80"
                   cy="80"
                   r="74"
-                  className={`fill-none transition-all duration-1000 ${postureInterrupted ? 'stroke-rose-500' : 'stroke-cyan-400'}`}
+                  className={`fill-none transition-all duration-1000 ${postureInterrupted ? 'stroke-rose-500' : 'stroke-violet-400'}`}
                   strokeWidth="5"
                   strokeDasharray="465"
                   strokeDashoffset={465 - (465 * (secondsLeft / totalPhaseTime))}
@@ -249,7 +249,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
               </svg>
 
               <div className="text-center font-mono">
-                <div className={`text-4xl font-bold tracking-tight ${postureInterrupted ? 'text-red-500 animate-pulse cyber-glow-red' : 'text-cyan-400 cyber-glow'}`}>
+                <div className={`text-4xl font-bold tracking-tight ${postureInterrupted ? 'text-red-500 animate-pulse cyber-glow-red' : 'text-violet-300 accent-glow'}`}>
                   {formatTime(secondsLeft)}
                 </div>
                 <div className="text-[9px] text-slate-500 mt-1 uppercase">
@@ -260,7 +260,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
           </div>
 
           {/* POSTURE PANEL OR PROMPT */}
-          <div className="z-10 mt-4 bg-slate-950/80 p-4 border border-slate-800 rounded-md">
+          <div className="z-10 mt-4 bg-black/80 p-4 border border-slate-800 rounded-md">
             <AnimatePresence mode="wait">
               {currentPostureIdx === -1 ? (
                 <motion.div 
@@ -280,14 +280,14 @@ export default function StepOne({ onComplete }: StepOneProps) {
                   exit={{ opacity: 0, y: -10 }}
                   className="space-y-2 text-xs font-mono"
                 >
-                  <div className="flex justify-between font-semibold text-cyan-400">
+                  <div className="flex justify-between font-semibold text-white/75">
                     <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-cyan-450 animate-spin" />
+                      <Clock className="h-3.5 w-3.5 text-white/65 animate-spin" />
                       Calm state active
                     </span>
                     <span className="text-slate-400">{POSTURES[currentPostureIdx].energyCost}</span>
                   </div>
-                  <p className="text-xs text-slate-300 bg-cyan-950/10 p-2.5 border border-cyan-500/10 rounded leading-relaxed">
+                  <p className="text-xs text-slate-300 bg-white/10 p-2.5 border border-white/8 rounded leading-relaxed">
                     Keep your eyes closed, and breathe. Try to escape your hyperactive sympathetic nervous system...
                   </p>
                 </motion.div>
@@ -358,7 +358,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
             <button
               id="proceed-step-two-btn"
               onClick={() => { playClick(1200); onComplete(); }}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-450 text-slate-950 font-mono text-xs font-bold rounded flex items-center gap-1.5 transition-all shadow-[0_0_8px_rgba(16,185,129,0.3)] cursor-pointer"
+              className="px-4 py-2 btn-success font-mono text-xs rounded flex items-center gap-1.5 cursor-pointer"
             >
               Survive to Stage 02
               <RefreshCw className="h-3.5 w-3.5 animate-spin" style={{ animationDuration: '4s' }} />
@@ -369,7 +369,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
             <button
               id="proceed-step-two-btn"
               onClick={() => { playClick(1200); onComplete(); }}
-              className="px-4 py-2 bg-cyan-500 hover:bg-cyan-450 text-slate-950 font-mono text-xs font-bold rounded flex items-center gap-1.5 transition-all shadow-[0_0_8px_rgba(34,211,238,0.3)] cursor-pointer"
+              className="px-4 py-2 accent-btn-ghost font-mono text-xs font-bold rounded flex items-center gap-1.5 cursor-pointer"
             >
               Unlock Stage 02
               <RefreshCw className="h-3.5 w-3.5" />

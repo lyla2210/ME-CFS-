@@ -435,15 +435,15 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-cyan-500/30 overflow-hidden bg-slate-950/80 p-6 md:p-8 font-sans">
+    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
       
       {/* Header Info */}
-      <div className="mb-6 border-b border-cyan-500/20 pb-4">
-        <h2 id="step-two-title" className="text-xl md:text-2xl font-semibold tracking-tight text-cyan-400 font-mono flex items-center gap-2">
-          <Brain className="h-5 w-5 text-cyan-400 animate-pulse" />
-          STAGE 02: Dissolving Speech [Cognitive Fog & Dysphasia]
+      <div className="mb-6 border-b border-white/10 pb-4">
+        <h2 id="step-two-title" className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2">
+          <Brain className="h-5 w-5 text-violet-300 animate-pulse" />
+          STAGE <span className="text-violet-300">02</span>: Dissolving Speech [Cognitive Fog & Dysphasia]
         </h2>
-        <p className="text-slate-400 text-xs mt-1 leading-relaxed border-l border-cyan-500/20 pl-2">
+        <p className="text-slate-400 text-xs mt-1 leading-relaxed border-l border-white/10 pl-2">
           ME/CFS brain fog targets information processing and verbal coordination (dysphasia). As sensory overload peaks, language crumbles into digital artifacts, and neuropathway signals experience physical delay—causing you to stare at buttons yet struggle to move your limbs.
         </p>
       </div>
@@ -458,7 +458,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
           setMousePos({ x: -100, y: -100 });
           lastMousePos.current = { x: -100, y: -100 };
         }}
-        className={`relative min-h-[460px] rounded border border-slate-800 bg-slate-950/60 p-4 md:p-6 overflow-hidden select-none transition-all duration-1000 ${
+        className={`relative min-h-[460px] rounded border border-slate-800 bg-black/60 p-4 md:p-6 overflow-hidden select-none transition-all duration-1000 ${
           taskIndex > 1 && !isBlackout ? 'cursor-none' : 'cursor-default'
         } ${isBlackout ? 'bg-black border-black shadow-[inset_0_0_50px_rgba(0,0,0,1)]' : ''}`}
       >
@@ -493,7 +493,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
               <div className="md:col-span-4 flex flex-col items-center justify-center gap-3 border-r border-slate-900 pr-0 md:pr-4">
                 <GlitchFace distortion={(taskIndex - 1) * 23} />
                 <div className="text-center font-mono w-full">
-                  <div className={`text-xs font-bold leading-none uppercase ${taskIndex > 3 ? 'text-rose-400' : 'text-cyan-400'}`}>
+                  <div className={`text-xs font-bold leading-none uppercase ${taskIndex > 3 ? 'text-rose-400' : 'text-violet-300'}`}>
                     MANAGER [DEPT LEAD]
                   </div>
                   <div className="text-[9px] text-slate-500 mt-1 uppercase tracking-wider">
@@ -509,7 +509,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                         key={idx} 
                         className={`h-2 w-full max-w-[20px] rounded-[1px] transition-all ${
                           idx <= taskIndex 
-                            ? 'bg-cyan-500 shadow-[0_0_4px_rgba(34,211,238,0.5)]' 
+                            ? 'accent-dot' 
                             : 'bg-slate-800'
                         }`}
                         title={`Task ${idx}`}
@@ -533,7 +533,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     <div className="bg-slate-900/60 p-4 rounded-md border border-slate-800">
                       <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 mb-2">
                         <span className="tracking-widest">TRANSMISSION HEADER</span>
-                        <span className="text-cyan-450 text-cyan-400 font-bold">● ACTIVE</span>
+                        <span className="text-white/65 text-violet-300 font-bold">● ACTIVE</span>
                       </div>
                       
                       {t1Phase === 'memorize' ? (
@@ -554,7 +554,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                           <p className="font-mono text-xs text-slate-300">
                             Please select the second number.
                           </p>
-                          <div className="text-lg font-mono font-semibold text-cyan-400/80">
+                          <div className="text-lg font-mono font-semibold text-violet-300/80">
                             [ SEARCHING RETRO-SEQUENCE... ]
                           </div>
                         </div>
@@ -567,7 +567,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                           <button
                             key={num}
                             onClick={() => handleT1Choice(num)}
-                            className="py-3 px-2 rounded font-mono text-xs bg-cyan-500/5 hover:bg-cyan-500/15 border border-cyan-500/15 hover:border-cyan-500/30 text-cyan-300 transition-all cursor-pointer"
+                            className="py-3 px-2 rounded font-mono text-xs bg-white/5 hover:bg-white/15 border border-white/8 hover:border-white/10 text-white/85 transition-all cursor-pointer"
                           >
                             Choice {num === 24 ? 'A' : num === 32 ? 'B' : 'C'}: {num}
                           </button>
@@ -579,7 +579,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                       <div className="space-y-4">
                         <div className={`p-4 rounded border font-mono text-xs ${
                           t1Selected === 32 
-                            ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400' 
+                            ? 'bg-violet-400/10 border-violet-400/30 text-violet-300'
                             : 'bg-rose-950/20 border-rose-500/25 text-rose-300'
                         }`}>
                           <div className="flex items-center gap-2 font-bold mb-1">
@@ -590,7 +590,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                         </div>
                         <button
                           onClick={() => { playClick(); setTaskIndex(2); }}
-                          className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full py-3 accent-btn font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <span>PROCEED TO TASK 2</span>
                           <ArrowRight className="h-4 w-4" />
@@ -611,7 +611,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                         <span className="text-orange-400 animate-pulse font-bold">⚠ DELAY STAGE 1 ACTIVE</span>
                       </div>
                       <p className="font-mono text-xs text-slate-200 leading-relaxed">
-                        Please send me the client information for <strong className="text-cyan-400 font-bold">GlobalTech</strong>.
+                        Please send me the client information for <strong className="text-violet-300 font-bold">GlobalTech</strong>.
                       </p>
                     </div>
 
@@ -630,11 +630,11 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                           }}
                           className={`p-3 rounded border font-mono text-xs flex items-center gap-2 cursor-grab select-none transition-all ${
                             t2SelectedId === f.id
-                              ? 'bg-cyan-500/10 border-cyan-400 text-cyan-300'
+                              ? 'bg-white/10 border-white/20 text-white/85'
                               : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 text-slate-400'
                           }`}
                         >
-                          <Folder className="h-4 w-4 shrink-0 text-cyan-500" />
+                          <Folder className="h-4 w-4 shrink-0 text-white/60" />
                           <span className="truncate">{f.name}</span>
                         </div>
                       ))}
@@ -653,11 +653,11 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                         t2Status === 'success'
                           ? 'bg-emerald-950/10 border-emerald-500/40 text-emerald-400'
                           : t2SelectedId 
-                          ? 'bg-[#22d3ee]/5 border-cyan-400/40 text-cyan-300 animate-pulse'
-                          : 'bg-slate-900/20 border-slate-800 hover:border-cyan-500/30 text-slate-500'
+                          ? 'bg-white/90/5 border-white/20/40 text-white/85 animate-pulse'
+                          : 'bg-slate-900/20 border-slate-800 hover:border-white/10 text-slate-500'
                       }`}
                     >
-                      <Mail className="h-6 w-6 text-cyan-400" />
+                      <Mail className="h-6 w-6 text-violet-300" />
                       <div className="text-xs font-bold uppercase tracking-wider">
                         {t2Status === 'success' ? 'FOLDER SECURELY TRANSMITTED' : 'Manager\'s Inbox [manager@company.com]'}
                       </div>
@@ -669,8 +669,8 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     {t2Feedback && (
                       <div className={`p-3 rounded border font-mono text-xs ${
                         t2Status === 'success'
-                          ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400' 
-                          : 'bg-rose-950/20 border-rose-500/25 text-rose-300'
+                            ? 'bg-violet-400/10 border-violet-400/30 text-violet-300'
+                            : 'bg-rose-950/20 border-rose-500/25 text-rose-300'
                       }`}>
                         {t2Feedback}
                       </div>
@@ -679,7 +679,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     {t2Status === 'success' && (
                       <button
                         onClick={() => { playClick(); setTaskIndex(3); }}
-                        className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-3 accent-btn font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span>PROCEED TO TASK 3</span>
                         <ArrowRight className="h-4 w-4" />
@@ -703,7 +703,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                       <div className={`shrink-0 px-3 py-1.5 font-mono text-xs font-bold rounded border ${
                         t3Timer <= 5 
                           ? 'bg-rose-950/30 border-rose-500/45 text-rose-400 animate-pulse' 
-                          : 'bg-slate-900 border-slate-800 text-cyan-400'
+                          : 'bg-slate-900 border-slate-800 text-violet-300'
                       }`}>
                         SEC LEFT: {t3Timer}s
                       </div>
@@ -731,7 +731,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                               <button
                                 disabled={idx === 0}
                                 onClick={() => moveEmail(idx, 'up')}
-                                className="p-1 rounded bg-slate-950 hover:bg-cyan-500/10 border border-slate-800 hover:border-cyan-500/30 text-slate-450 disabled:opacity-20 cursor-pointer"
+                                className="p-1 rounded bg-slate-950 hover:bg-white/10 border border-slate-800 hover:border-white/10 text-slate-500 disabled:opacity-20 cursor-pointer"
                                 title="Move Up"
                               >
                                 <ChevronUp className="h-3 w-3" />
@@ -739,7 +739,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                               <button
                                 disabled={idx === emails.length - 1}
                                 onClick={() => moveEmail(idx, 'down')}
-                                className="p-1 rounded bg-slate-950 hover:bg-cyan-500/10 border border-slate-800 hover:border-cyan-500/30 text-slate-450 disabled:opacity-20 cursor-pointer"
+                                className="p-1 rounded bg-slate-950 hover:bg-white/10 border border-slate-800 hover:border-white/10 text-slate-500 disabled:opacity-20 cursor-pointer"
                                 title="Move Down"
                               >
                                 <ChevronDown className="h-3 w-3" />
@@ -753,8 +753,8 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     {t3Feedback && (
                       <div className={`p-2.5 rounded border font-mono text-[11px] ${
                         t3Status === 'success'
-                          ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400' 
-                          : 'bg-rose-950/20 border-rose-500/25 text-rose-300'
+                            ? 'bg-violet-400/10 border-violet-400/30 text-violet-300'
+                            : 'bg-rose-950/20 border-rose-500/25 text-rose-300'
                       }`}>
                         {t3Feedback}
                       </div>
@@ -763,7 +763,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     {t3Status !== 'playing' && (
                       <button
                         onClick={() => { playClick(); setTaskIndex(4); }}
-                        className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-2.5 accent-btn font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span>PROCEED TO TASK 4</span>
                         <ArrowRight className="h-4 w-4" />
@@ -781,7 +781,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                       <div>
                         <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">CRITICAL DEADLINE</div>
                         <p className="font-mono text-xs text-slate-200">
-                          Find and open the <strong className="text-cyan-400">Q3 financial report</strong> before the clock runs out!
+                          Find and open the <strong className="text-violet-300">Q3 financial report</strong> before the clock runs out!
                         </p>
                       </div>
                       <div className="shrink-0 px-3 py-1.5 font-mono text-xs font-bold rounded border bg-rose-950/20 border-rose-500/40 text-rose-400 animate-pulse">
@@ -790,7 +790,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     </div>
 
                     {/* scattered workspace folder cards */}
-                    <div className="relative flex-1 min-h-[180px] bg-slate-950/80 border border-slate-900 rounded p-4">
+                    <div className="relative flex-1 min-h-[180px] bg-black/80 border border-slate-900 rounded p-4">
                       {t4Status === 'playing' ? (
                         t4Files.map((f, idx) => {
                           const isGlitching = t4GlitchingId === f.id;
@@ -810,10 +810,10 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                               className={`p-2.5 rounded border flex flex-col items-center justify-center gap-1 text-[10px] font-mono tracking-tight max-w-[130px] transition-all duration-150 cursor-pointer ${
                                 isGlitching
                                   ? 'bg-rose-950/60 border-red-500 text-red-200 animate-bounce'
-                                  : 'bg-slate-900/40 border-slate-800 hover:border-cyan-500/20 hover:bg-[#22d3ee]/5 text-slate-300'
+                                  : 'bg-slate-900/40 border-slate-800 hover:border-white/10 hover:bg-white/90/5 text-slate-300'
                               }`}
                             >
-                              <Folder className={`h-5 w-5 ${isGlitching ? 'text-red-500 animate-pulse' : 'text-cyan-500'}`} />
+                              <Folder className={`h-5 w-5 ${isGlitching ? 'text-red-500 animate-pulse' : 'text-white/60'}`} />
                               <span className="truncate block max-w-[110px]">{f.currentName}</span>
                             </button>
                           );
@@ -834,7 +834,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     {t4Status !== 'playing' && (
                       <button
                         onClick={() => { playClick(); setTaskIndex(5); }}
-                        className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-2.5 accent-btn font-bold font-mono text-xs rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span>PROCEED TO TASK 5</span>
                         <ArrowRight className="h-4 w-4" />
@@ -859,7 +859,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                           FROM: Supervisor [Dept Lead]
                         </div>
                         <p className="font-mono text-xs text-slate-200 leading-relaxed">
-                          A client meeting starts at <strong className="text-cyan-400 text-sm">{t5MeetingTime}</strong>. You need 30 minutes preparation.
+                          A client meeting starts at <strong className="text-violet-300 text-sm">{t5MeetingTime}</strong>. You need 30 minutes preparation.
                         </p>
                       </div>
                     </div>
@@ -873,21 +873,21 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                           <button
                             id="choice-t5-a"
                             onClick={() => handleT5Choice("A")}
-                            className="w-full py-3 px-4 rounded text-left font-mono text-xs bg-cyan-500/5 hover:bg-cyan-500/10 border border-cyan-500/15 text-cyan-300 cursor-pointer"
+                            className="w-full py-3 px-4 rounded text-left font-mono text-xs bg-white/5 hover:bg-white/10 border border-white/8 text-white/85 cursor-pointer"
                           >
                             Choice A: 1:30 PM
                           </button>
                           <button
                             id="choice-t5-b"
                             onClick={() => handleT5Choice("B")}
-                            className="w-full py-3 px-4 rounded text-left font-mono text-xs bg-cyan-500/5 hover:bg-cyan-500/10 border border-cyan-500/15 text-cyan-300 cursor-pointer"
+                            className="w-full py-3 px-4 rounded text-left font-mono text-xs bg-white/5 hover:bg-white/10 border border-white/8 text-white/85 cursor-pointer"
                           >
                             Choice B: 11:30 AM
                           </button>
                           <button
                             id="choice-t5-c"
                             onClick={() => handleT5Choice("C")}
-                            className="w-full py-3 px-4 rounded text-left font-mono text-xs bg-cyan-500/5 hover:bg-cyan-500/10 border border-cyan-500/15 text-cyan-300 cursor-pointer"
+                            className="w-full py-3 px-4 rounded text-left font-mono text-xs bg-white/5 hover:bg-white/10 border border-white/8 text-white/85 cursor-pointer"
                           >
                             Choice C: 8:30 AM
                           </button>
@@ -929,7 +929,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                 <p className="whitespace-pre-wrap font-mono text-base md:text-lg leading-relaxed text-slate-100 tracking-wide select-none">
                   {typewriterText}
                   {typewriterIndex < blackoutContent.length && (
-                    <span className="animate-pulse font-mono text-cyan-400 ml-1">_</span>
+                    <span className="animate-pulse font-mono text-violet-300 ml-1">_</span>
                   )}
                 </p>
 
@@ -951,7 +951,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     <button
                       id="finish-step-two"
                       onClick={() => { playClick(1100); onComplete(); }}
-                      className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold font-mono rounded transition-shadow shadow-[0_0_15px_rgba(34,211,238,0.5)] cursor-pointer"
+                      className="px-5 py-2.5 accent-btn text-xs font-bold font-mono rounded cursor-pointer"
                     >
                       Proceed to Stage 03: Physical Exertion
                     </button>

@@ -54,14 +54,13 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
   return (
     <div 
       ref={containerRef}
-      className="relative w-48 h-48 border border-cyan-500/20 bg-slate-950/80 rounded flex items-center justify-center overflow-hidden font-mono text-[10px]"
+      className="relative w-48 h-48 border border-white/10 bg-black/80 rounded flex items-center justify-center overflow-hidden font-mono text-[10px]"
     >
-      {/* Background Matrix Scanning Lines */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.08)_0%,transparent_80%)]" />
-      <div className="absolute inset-y-0 left-12 w-[1px] bg-cyan-500/10" />
-      <div className="absolute inset-y-0 left-36 w-[1px] bg-cyan-500/10" />
-      <div className="absolute inset-x-0 top-12 h-[1px] bg-cyan-500/10" />
-      <div className="absolute inset-x-0 top-36 h-[1px] bg-cyan-500/10" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_0%,transparent_80%)]" />
+      <div className="absolute inset-y-0 left-12 w-[1px] bg-white/10" />
+      <div className="absolute inset-y-0 left-36 w-[1px] bg-white/10" />
+      <div className="absolute inset-x-0 top-12 h-[1px] bg-white/10" />
+      <div className="absolute inset-x-0 top-36 h-[1px] bg-white/10" />
 
       {/* Futuristic Vector Face */}
       <svg 
@@ -79,16 +78,16 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
           cy={faceCenter.y} 
           r="75" 
           fill="none" 
-          stroke={distortion > 60 ? '#f43f5e' : '#22d3ee'} 
+          stroke={distortion > 60 ? '#f43f5e' : 'rgba(255,255,255,0.75)'} 
           strokeWidth="1.5" 
           strokeDasharray={distortion > 40 ? "5, 8, 2, 8" : "none"}
           className="transition-colors duration-300"
         />
 
         {/* Head Circuit Dots */}
-        <circle cx={faceCenter.x - 75} cy={faceCenter.y} r="3" fill="#22d3ee" />
-        <circle cx={faceCenter.x + 75} cy={faceCenter.y} r="3" fill="#22d3ee" />
-        <circle cx={faceCenter.x} cy={faceCenter.y - 75} r="3" fill="#22d3ee" />
+        <circle cx={faceCenter.x - 75} cy={faceCenter.y} r="3" fill="rgba(255,255,255,0.75)" />
+        <circle cx={faceCenter.x + 75} cy={faceCenter.y} r="3" fill="rgba(255,255,255,0.75)" />
+        <circle cx={faceCenter.x} cy={faceCenter.y - 75} r="3" fill="rgba(255,255,255,0.75)" />
 
         {/* Brain Signal Mesh (Visible when distorted) */}
         {distortion > 20 && (
@@ -105,8 +104,8 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
           <text x={leftEye.x - 8} y={leftEye.y + 4} fill="#f43f5e" className="font-bold">Err</text>
         ) : (
           <g>
-            <circle cx={leftEye.x} cy={leftEye.y} r="10" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
-            <circle cx={leftEye.x} cy={leftEye.y} r="3" fill="#22d3ee" />
+            <circle cx={leftEye.x} cy={leftEye.y} r="10" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.5" />
+            <circle cx={leftEye.x} cy={leftEye.y} r="3" fill="rgba(255,255,255,0.75)" />
             {distortion > 40 && <line x1={leftEye.x - 12} y1={leftEye.y} x2={leftEye.x + 12} y2={leftEye.y} stroke="#f43f5e" strokeWidth="1.5" />}
           </g>
         )}
@@ -116,14 +115,14 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
           <text x={rightEye.x - 8} y={rightEye.y + 4} fill="#f43f5e" className="font-bold">ØX</text>
         ) : (
           <g>
-            <circle cx={rightEye.x} cy={rightEye.y} r="10" fill="none" stroke="#22d3ee" strokeWidth="1.5" />
-            <circle cx={rightEye.x} cy={rightEye.y} r="3" fill="#22d3ee" />
+            <circle cx={rightEye.x} cy={rightEye.y} r="10" fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.5" />
+            <circle cx={rightEye.x} cy={rightEye.y} r="3" fill="rgba(255,255,255,0.75)" />
             {distortion > 40 && <line x1={rightEye.x - 12} y1={rightEye.y} x2={rightEye.x + 12} y2={rightEye.y} stroke="#f43f5e" strokeWidth="1.5" />}
           </g>
         )}
 
         {/* Nose Line / Core */}
-        <path d={`M 100 85 L ${faceCenter.x} 110`} stroke="#22d3ee" strokeWidth="1.5" fill="none" />
+        <path d={`M 100 85 L ${faceCenter.x} 110`} stroke="rgba(255,255,255,0.75)" strokeWidth="1.5" fill="none" />
 
         {/* Mouth */}
         {distortion > 80 ? (
@@ -141,7 +140,7 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
             y1={mouthY} 
             x2={faceCenter.x + mouthW/2} 
             y2={mouthY} 
-            stroke="#22d3ee" 
+            stroke="rgba(255,255,255,0.75)" 
             strokeWidth="2" 
           />
         )}
@@ -154,7 +153,7 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
             <span className="bg-rose-950/90 px-1 border border-rose-500/40 text-[8px] animate-pulse">
               FOG: {distortion}%
             </span>
-            <span className="text-[8px] text-cyan-400">STATUS: FLUX</span>
+            <span className="text-[8px] text-white/70">STATUS: FLUX</span>
           </div>
           {scanlines.length > 0 && (
             <div className="bg-red-950/80 px-1 border border-red-500 text-[8px] text-center mb-1">
@@ -165,7 +164,7 @@ export default function GlitchFace({ distortion }: GlitchFaceProps) {
       )}
 
       {/* Cyber Grid scanning bar */}
-      <div className="absolute inset-x-0 h-[1.5px] bg-[#22d3ee]/35 shadow-[0_0_8px_#22d3ee] animate-[bounce_3s_infinite_linear]" />
+      <div className="absolute inset-x-0 h-[1.5px] bg-[rgba(255,255,255,0.75)]/35 shadow-[0_0_8px_rgba(255,255,255,0.75)] animate-[bounce_3s_infinite_linear]" />
     </div>
   );
 }

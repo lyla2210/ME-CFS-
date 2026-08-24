@@ -4,6 +4,9 @@
 @theme {
   --font-sans: "Space Grotesk", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-accent: #c4b5fd;
+  --color-accent-strong: #a78bfa;
+  --color-accent-glow: rgba(196, 181, 253, 0.35);
 }
 
 /* Custom Glitch and Tech Animations */
@@ -33,16 +36,15 @@
   animation: noise-clip 2s infinite linear alternate-reverse;
 }
 
-/* Cyber grid scan overlay */
 .cyber-bg {
   background-size: 16px 16px;
   background-image: radial-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 0);
 }
 
 .scanner-line {
-  background: linear-gradient(180deg, 
-    rgba(34, 211, 238, 0) 0%, 
-    rgba(34, 211, 238, 0.12) 50%, 
+  background: linear-gradient(180deg,
+    rgba(34, 211, 238, 0) 0%,
+    rgba(34, 211, 238, 0.12) 50%,
     rgba(34, 211, 238, 0) 100%
   );
   animation: scan 8s linear infinite;
@@ -54,20 +56,95 @@
   100% { transform: translateY(100vh); }
 }
 
-/* Custom glow effect */
+/* —— Purple accent on neutral B&W UI (no large color fields) —— */
+
+.accent-btn {
+  @apply bg-violet-300 text-slate-950 hover:bg-violet-200 font-mono font-bold transition-all cursor-pointer;
+  box-shadow: 0 0 16px rgba(196, 181, 253, 0.22);
+}
+
+.accent-btn:hover {
+  box-shadow: 0 0 22px rgba(196, 181, 253, 0.32);
+}
+
+.accent-btn-ghost {
+  @apply border border-white/12 bg-transparent text-slate-400 hover:text-white/80 hover:border-white/25 font-mono transition-all cursor-pointer;
+}
+
+.accent-tab-active {
+  @apply bg-violet-300 text-slate-950 font-semibold;
+}
+
+.accent-range {
+  @apply accent-violet-400;
+}
+
+.accent-checkbox {
+  @apply accent-violet-400 rounded border-slate-800 bg-slate-950 h-4 w-4;
+}
+
+.accent-mark {
+  @apply text-violet-300 font-bold;
+}
+
+.accent-score {
+  @apply text-violet-300 font-bold;
+}
+
+.accent-icon {
+  @apply text-violet-300;
+}
+
+.accent-progress {
+  @apply bg-violet-400;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.35);
+}
+
+.accent-progress-track {
+  @apply bg-slate-950;
+}
+
+.accent-border-l {
+  @apply border-l-2 border-violet-400/45;
+}
+
+.accent-dot {
+  @apply bg-violet-400;
+  box-shadow: 0 0 6px rgba(167, 139, 250, 0.45);
+}
+
+.accent-glow {
+  text-shadow: 0 0 12px rgba(196, 181, 253, 0.4);
+}
+
+.sim-panel {
+  @apply rounded-lg border border-white/10 overflow-hidden bg-black/80;
+}
+
+.sim-title {
+  @apply text-white/80 font-mono tracking-tight;
+}
+
+.sim-muted-btn {
+  @apply border border-white/10 bg-transparent text-slate-500 hover:text-slate-300 hover:border-white/20 font-mono text-xs transition-all cursor-pointer;
+}
+
+.status-danger {
+  @apply text-rose-400;
+}
+
+.status-warn {
+  @apply text-amber-400/90;
+}
+
 .cyber-glow {
-  text-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+  text-shadow: 0 0 10px rgba(196, 181, 253, 0.35);
 }
 
 .cyber-glow-red {
-  text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
 }
 
-.cyber-glow-amber {
-  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
-}
-
-/* Custom scrollbars for dot matrix tech look */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -76,11 +153,41 @@
   background: rgba(10, 10, 12, 1);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(34, 211, 238, 0.25);
+  background: rgba(167, 139, 250, 0.22);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(34, 211, 238, 0.5);
+  background: rgba(196, 181, 253, 0.38);
 }
 
+.hero-try-btn:hover {
+  box-shadow: 0 0 24px rgba(196, 181, 253, 0.15);
+  border-color: rgba(196, 181, 253, 0.35);
+}
 
+.pseudo-3d-scene {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pseudo-3d-plane {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.pseudo-3d-image-wrap {
+  filter: drop-shadow(0 28px 64px rgba(0, 0, 0, 0.85))
+    drop-shadow(0 0 32px rgba(255, 255, 255, 0.04));
+}
+
+.room-hotspot {
+  backdrop-filter: blur(0px);
+}
+
+@media (pointer: coarse) {
+  .room-hotspot {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
