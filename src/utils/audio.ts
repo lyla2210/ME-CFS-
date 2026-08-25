@@ -141,7 +141,29 @@ export function playRoomHover(roomOrder: number) {
   playClick(freqs[Math.min(3, Math.max(0, roomOrder - 1))] ?? 440, 0.055);
 }
 
-// 6. Locked room — muted low tone
+// 6. Locked room — metallic double-clunk
 export function playRoomLocked() {
-  playClick(180, 0.07);
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+
+    const playClunk = (start: number, freq: number, gainLevel: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.55, start + 0.09);
+      gain.gain.setValueAtTime(gainLevel, start);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.11);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.12);
+    };
+
+    playClunk(now, 220, 0.09);
+    playClunk(now + 0.07, 140, 0.07);
+  } catch {
+    playClick(180, 0.07);
+  }
 }

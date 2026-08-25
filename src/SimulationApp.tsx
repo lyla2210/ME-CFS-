@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import CyberGrid from './components/CyberGrid';
 import StepOne from './components/StepOne';
 import StepTwo from './components/StepTwo';
 import StepThree from './components/StepThree';
 import StepFour from './components/StepFour';
 import { playClick, playChime } from './utils/audio';
-import { unlockRoomOrder } from './utils/progress';
+import { enableFreeExplore, unlockRoomOrder } from './utils/progress';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldAlert, BookOpen, ChevronRight, HelpCircle, ExternalLink, Users, RefreshCw } from 'lucide-react';
+import { ShieldAlert, BookOpen, ChevronRight, HelpCircle, ExternalLink, Users, Map } from 'lucide-react';
 import { StepStatus } from './types';
 
 const INITIAL_STEPS: StepStatus[] = [
@@ -29,6 +29,7 @@ function buildStepsForEntry(startStep: number): StepStatus[] {
 }
 
 export default function SimulationApp() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const entryStep = useMemo(() => {
     const raw = parseInt(searchParams.get('step') ?? '1', 10);
@@ -38,36 +39,41 @@ export default function SimulationApp() {
   const [activeStepId, setActiveStepId] = useState<number>(entryStep);
   const [steps, setSteps] = useState<StepStatus[]>(() => buildStepsForEntry(entryStep));
   const [activeTab, setActiveTab] = useState<'simulation' | 'background' | 'about'>('simulation');
+  const [completedStageId, setCompletedStageId] = useState<number | null>(null);
 
-  const unlockNextStep = (currentId: number) => {
-    setSteps(prevSteps => {
-      return prevSteps.map(step => {
-        if (step.id === currentId) {
-          return { ...step, status: 'completed' as const };
-        }
-        if (step.id === currentId + 1) {
-          return { ...step, status: 'unlocked' as const };
-        }
-        return step;
-      });
-    });
+  const handleStageComplete = (stageId: number) => {
+    setSteps((prevSteps) =>
+      prevSteps.map((step) =>
+        step.id === stageId ? { ...step, status: 'completed' as const } : step
+      )
+    );
 
-    if (currentId < 4) {
-      setActiveStepId(currentId + 1);
-    } else {
-      setActiveStepId(5);
+    if (stageId < 4) {
+      unlockRoomOrder(stageId + 1);
+      playChime();
+      setCompletedStageId(stageId);
+      return;
     }
-    unlockRoomOrder(currentId + 1);
+
     playChime();
+    setActiveStepId(5);
   };
 
-  const handleRestartAll = () => {
-    playClick(400);
-    setSteps(INITIAL_STEPS.map((s) =>
-      s.id === 1 ? { ...s, status: 'active' as const } : { ...s, status: 'locked' as const }
-    ));
-    setActiveStepId(1);
-    setActiveTab('simulation');
+  const handleLeaveRoom = () => {
+    playClick(800, 0.08);
+    setCompletedStageId(null);
+    navigate('/?space=1');
+  };
+
+  const handleReturnToFloorPlan = () => {
+    playClick(800, 0.08);
+    enableFreeExplore();
+    navigate('/?space=1');
+  };
+
+  const handleGoToAbout = () => {
+    playClick();
+    setActiveTab('about');
   };
 
   return (
@@ -122,28 +128,28 @@ export default function SimulationApp() {
 
             {activeStepId === 1 && (
               <motion.div key="step-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
-                <StepOne onComplete={() => unlockNextStep(1)} />
+                <StepOne onComplete={() => handleStageComplete(1)} />
               </motion.div>
             )}
 
             {/* Step 2: Cognitive Fog Dialog */}
             {activeStepId === 2 && (
               <motion.div key="step-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
-                <StepTwo onComplete={() => unlockNextStep(2)} />
+                <StepTwo onComplete={() => handleStageComplete(2)} />
               </motion.div>
             )}
 
             {/* Step 3: Dumbbell PEM Exertion */}
             {activeStepId === 3 && (
               <motion.div key="step-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
-                <StepThree onComplete={() => unlockNextStep(3)} />
+                <StepThree onComplete={() => handleStageComplete(3)} />
               </motion.div>
             )}
 
             {/* Step 4: Normal metrics Medical Diagnostic System */}
             {activeStepId === 4 && (
               <motion.div key="step-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full">
-                <StepFour onComplete={() => unlockNextStep(4)} />
+                <StepFour onComplete={() => handleStageComplete(4)} />
               </motion.div>
             )}
 
@@ -182,24 +188,23 @@ export default function SimulationApp() {
                   </p>
                 </div>
 
-                <div className="pt-6 border-t border-slate-900 flex justify-center gap-4 flex-col sm:flex-row">
+                <div className="pt-6 border-t border-slate-900 flex justify-center gap-3 flex-col sm:flex-row flex-wrap">
                   <button
-                    id="epilogue-restart-btn"
-                    onClick={handleRestartAll}
-                    className="px-5 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-400 text-xs font-mono font-bold rounded transition-all cursor-pointer"
+                    id="epilogue-about-btn"
+                    onClick={handleGoToAbout}
+                    className="px-5 py-2.5 border border-white/12 text-slate-300 hover:text-white hover:border-white/25 text-xs font-mono rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    Repeat Simulation Run
+                    <HelpCircle className="h-3.5 w-3.5" />
+                    About
                   </button>
-                  <a
-                    id="link-cdc-info"
-                    href="https://www.cdc.gov/me-cfs/index.html"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-5 py-2.5 accent-btn text-xs font-mono rounded transition-all flex items-center justify-center gap-1 cursor-pointer"
+                  <button
+                    id="epilogue-return-map-btn"
+                    onClick={handleReturnToFloorPlan}
+                    className="px-5 py-2.5 accent-btn text-xs font-mono rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span>Read CDC Guidelines</span>
-                    <ChevronRight className="h-3.5 w-3.5 text-slate-950" />
-                  </a>
+                    <Map className="h-3.5 w-3.5 text-slate-950" />
+                    Return to floor plan
+                  </button>
                 </div>
               </motion.div>
             )}
@@ -375,6 +380,31 @@ export default function SimulationApp() {
         )}
 
       </main>
+
+      <AnimatePresence>
+        {completedStageId !== null && completedStageId < 4 && (
+          <motion.div
+            key="leave-room-overlay"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-sm px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+          >
+            <motion.button
+              type="button"
+              id="leave-room-btn"
+              onClick={handleLeaveRoom}
+              initial={{ opacity: 0, y: 12, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.15, duration: 0.4, ease: 'easeOut' }}
+              className="px-10 py-4 rounded border border-white/20 bg-white/5 hover:bg-white/10 text-sm md:text-base font-mono tracking-[0.2em] uppercase text-white/90 hover:text-white transition-all cursor-pointer shadow-[0_0_48px_rgba(0,0,0,0.55)]"
+            >
+              Leave this room
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* FOOTER RAILS */}
       <footer className="z-10 border-t border-slate-950 bg-slate-950 py-3 px-6 text-center text-[10px] text-slate-600 font-mono flex flex-col sm:flex-row justify-between items-center gap-2">

@@ -177,13 +177,38 @@
   backface-visibility: hidden;
 }
 
+/* Soft silhouette depth — no rectangular card shadow */
 .pseudo-3d-image-wrap {
-  filter: drop-shadow(0 28px 64px rgba(0, 0, 0, 0.85))
-    drop-shadow(0 0 32px rgba(255, 255, 255, 0.04));
+  filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.55));
+}
+
+/*
+ * Floor-plan PNG: true alpha silhouette + soft edge feather.
+ * No rectangular plate / card chrome — ambient CyberGrid shows through.
+ */
+.space-map-blend {
+  isolation: isolate;
+  filter: drop-shadow(0 22px 48px rgba(0, 0, 0, 0.55));
+}
+
+.space-map-blend img {
+  display: block;
+  -webkit-mask-image: radial-gradient(
+    ellipse 82% 78% at 50% 48%,
+    #000 58%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    ellipse 82% 78% at 50% 48%,
+    #000 58%,
+    transparent 92%
+  );
 }
 
 .room-hotspot {
   backdrop-filter: blur(0px);
+  border: none;
+  background: transparent;
 }
 
 @media (pointer: coarse) {
