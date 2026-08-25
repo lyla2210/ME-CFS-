@@ -122,12 +122,19 @@ export default function SpaceMap({ startInExplore = false }: SpaceMapProps) {
                 aria-label={phase === 'preview' ? 'Enter the experiential space' : 'Space map'}
               >
                 <div className="relative w-full space-map-blend">
-                  <img
-                    src={ASSETS.spaceMap}
-                    alt="ME/CFS experiential space floor plan"
-                    className="w-full h-auto object-contain pointer-events-none select-none block"
-                    draggable={false}
-                  />
+                  <picture>
+                    <source srcSet={ASSETS.spaceMapWebp} type="image/webp" />
+                    <img
+                      src={ASSETS.spaceMap}
+                      alt="ME/CFS experiential space floor plan"
+                      width={920}
+                      height={761}
+                      fetchPriority="high"
+                      decoding="async"
+                      className="w-full h-auto object-contain pointer-events-none select-none block"
+                      draggable={false}
+                    />
+                  </picture>
                 </div>
 
                 <AnimatePresence>

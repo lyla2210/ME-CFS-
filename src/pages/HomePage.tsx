@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CyberGrid from '../components/CyberGrid';
 import CosmicDrift from '../components/space/CosmicDrift';
@@ -6,6 +6,7 @@ import CornerVignette from '../components/home/CornerVignette';
 import HeroSection from '../components/home/HeroSection';
 import BlackoutTransition from '../components/home/BlackoutTransition';
 import SpaceMap from '../components/space/SpaceMap';
+import { preloadSpaceMap } from '../utils/preloadSpaceMap';
 
 type HomePhase = 'hero' | 'blackout' | 'space';
 
@@ -15,6 +16,10 @@ export default function HomePage() {
     searchParams.get('space') === '1' || searchParams.get('view') === 'space';
 
   const [phase, setPhase] = useState<HomePhase>(jumpToSpace ? 'space' : 'hero');
+
+  useEffect(() => {
+    preloadSpaceMap();
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-black overflow-hidden">

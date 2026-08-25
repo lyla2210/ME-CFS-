@@ -230,29 +230,23 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
   // ----------------------------------------------------
   // TASK 4: Find and Open Q3 Financial Report
   // ----------------------------------------------------
-  const scatteredFiles = [
-    { id: 'f1', originalName: 'Financial_Report_Q3', currentName: 'Financial_Report_Q3' },
-    { id: 'f2', originalName: 'Q2_Report', currentName: 'Q2_Report' },
-    { id: 'f3', originalName: 'Q4_Budget', currentName: 'Q4_Budget' },
-    { id: 'f4', originalName: 'Client_List', currentName: 'Client_List' },
-    { id: 'f5', originalName: 'Meeting_Minutes', currentName: 'Meeting_Minutes' },
-    { id: 'f6', originalName: 'Project_Timeline', currentName: 'Project_Timeline' }
+  const T4_TARGET_NAME = 'Financial_Report_Q3';
+  const T4_DECOY_NAMES = ['Q2_Report', 'Q4_Budget', 'Client_List', 'Meeting_Minutes', 'Project_Timeline'];
+
+  const initialT4Files = [
+    { id: 'f1', name: T4_TARGET_NAME, left: '10%', top: '25%' },
+    { id: 'f2', name: 'Q2_Report', left: '42%', top: '15%' },
+    { id: 'f3', name: 'Q4_Budget', left: '72%', top: '30%' },
+    { id: 'f4', name: 'Client_List', left: '15%', top: '65%' },
+    { id: 'f5', name: 'Meeting_Minutes', left: '45%', top: '70%' },
+    { id: 'f6', name: 'Project_Timeline', left: '75%', top: '65%' },
   ];
 
-  const [t4Files, setT4Files] = useState(scatteredFiles);
+  const [t4Files, setT4Files] = useState(initialT4Files);
   const [t4Timer, setT4Timer] = useState(10);
   const [t4Status, setT4Status] = useState<'playing' | 'failed'>('playing');
-  const [t4GlitchingId, setT4GlitchingId] = useState<string | null>(null);
-
-  // Position offsets for scattering items
-  const filePositions = [
-    { left: '10%', top: '25%' },
-    { left: '42%', top: '15%' },
-    { left: '72%', top: '30%' },
-    { left: '15%', top: '65%' },
-    { left: '45%', top: '70%' },
-    { left: '75%', top: '65%' }
-  ];
+  const [t4GlitchingIds, setT4GlitchingIds] = useState<string[]>([]);
+  const t4ScrambleLockRef = useRef(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -272,35 +266,49 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
     return () => clearInterval(interval);
   }, [taskIndex, t4Status]);
 
-  // When hovering or trying to click the correct Q3 Report
-  const handleT4HoverCorrect = (id: string, isHovering: boolean) => {
-    if (t4Status !== 'playing') return;
-    if (id === 'f1') {
-      if (isHovering) {
-        // Automatically turns into another randomized folder on hover
-        const alternativeNames = ['Q2_Report', 'Q4_Budget', 'Client_List', 'Meeting_Minutes'];
-        const randomName = alternativeNames[Math.floor(Math.random() * alternativeNames.length)];
-        
-        setT4Files(prev => prev.map(f => f.id === 'f1' ? { ...f, currentName: randomName } : f));
-        setT4GlitchingId('f1');
-        playGlitchHum(0.2);
-      } else {
-        // Return to original
-        setT4Files(prev => prev.map(f => f.id === 'f1' ? { ...f, currentName: 'Financial_Report_Q3' } : f));
-        setT4GlitchingId(null);
-      }
-    }
+  const scrambleT4Target = (hoveredId: string) => {
+    if (t4Status !== 'playing' || t4ScrambleLockRef.current) return;
+
+    setT4Files((prev) => {
+      const hovered = prev.find((f) => f.id === hoveredId);
+      if (!hovered || hovered.name !== T4_TARGET_NAME) return prev;
+
+      t4ScrambleLockRef.current = true;
+
+      const decoy =
+        T4_DECOY_NAMES[Math.floor(Math.random() * T4_DECOY_NAMES.length)];
+      const candidates = prev.filter((f) => f.id !== hoveredId);
+      const nextTarget = candidates[Math.floor(Math.random() * candidates.length)];
+
+      setT4GlitchingIds([hoveredId, nextTarget.id]);
+      playGlitchHum(0.28);
+      setTimeout(() => {
+        setT4GlitchingIds([]);
+        t4ScrambleLockRef.current = false;
+      }, 420);
+
+      return prev.map((f) => {
+        if (f.id === hoveredId) return { ...f, name: decoy };
+        if (f.id === nextTarget.id) return { ...f, name: T4_TARGET_NAME };
+        return f;
+      });
+    });
+  };
+
+  const handleT4HoverCorrect = (id: string) => {
+    scrambleT4Target(id);
   };
 
   const handleT4Click = (id: string) => {
     if (t4Status !== 'playing') return;
+    const clicked = t4Files.find((f) => f.id === id);
+    if (clicked?.name === T4_TARGET_NAME) {
+      scrambleT4Target(id);
+      return;
+    }
     playWaringBeep(1000, 400, 1);
-    // Any click on f1 is wrong because it instantly scrambles to a distractor.
-    // Display interactive prompt shaking effect
-    setT4GlitchingId(id);
-    setTimeout(() => {
-      setT4GlitchingId(null);
-    }, 600);
+    setT4GlitchingIds([id]);
+    setTimeout(() => setT4GlitchingIds([]), 600);
   };
 
   // ----------------------------------------------------
@@ -792,29 +800,31 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
                     {/* scattered workspace folder cards */}
                     <div className="relative flex-1 min-h-[180px] bg-black/80 border border-slate-900 rounded p-4">
                       {t4Status === 'playing' ? (
-                        t4Files.map((f, idx) => {
-                          const isGlitching = t4GlitchingId === f.id;
-                          const pos = filePositions[idx];
-                          
+                        t4Files.map((f) => {
+                          const isGlitching = t4GlitchingIds.includes(f.id);
+
                           return (
                             <button
                               key={f.id}
                               style={{
                                 position: 'absolute',
-                                left: pos.left,
-                                top: pos.top
+                                left: f.left,
+                                top: f.top,
                               }}
-                              onMouseEnter={() => handleT4HoverCorrect(f.id, true)}
-                              onMouseLeave={() => handleT4HoverCorrect(f.id, false)}
+                              onMouseEnter={() => handleT4HoverCorrect(f.id)}
                               onClick={() => handleT4Click(f.id)}
-                              className={`p-2.5 rounded border flex flex-col items-center justify-center gap-1 text-[10px] font-mono tracking-tight max-w-[130px] transition-all duration-150 cursor-pointer ${
+                              className={`p-2.5 rounded border flex flex-col items-center justify-center gap-1 text-[10px] font-mono tracking-tight max-w-[130px] transition-colors duration-150 cursor-pointer ${
                                 isGlitching
-                                  ? 'bg-rose-950/60 border-red-500 text-red-200 animate-bounce'
-                                  : 'bg-slate-900/40 border-slate-800 hover:border-white/10 hover:bg-white/90/5 text-slate-300'
+                                  ? 'bg-rose-950/60 border-red-500 text-red-200 animate-pulse'
+                                  : 'bg-slate-900/40 border-slate-800 hover:border-white/10 text-slate-300'
                               }`}
                             >
-                              <Folder className={`h-5 w-5 ${isGlitching ? 'text-red-500 animate-pulse' : 'text-white/60'}`} />
-                              <span className="truncate block max-w-[110px]">{f.currentName}</span>
+                              <Folder
+                                className={`h-5 w-5 ${
+                                  isGlitching ? 'text-red-500' : 'text-white/60'
+                                }`}
+                              />
+                              <span className="truncate block max-w-[110px]">{f.name}</span>
                             </button>
                           );
                         })

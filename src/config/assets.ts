@@ -4,6 +4,7 @@
  */
 export const ASSETS = {
   spaceMap: '/assets/space-map.png',
+  spaceMapWebp: '/assets/space-map.webp',
   roomRest: '/assets/room-rest.png',
   roomBrainFog: '/assets/room-brain-fog.png',
   roomPem: '/assets/room-pem.png',
