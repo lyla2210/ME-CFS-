@@ -78,6 +78,11 @@ export default function StepOne({ onComplete }: StepOneProps) {
     startAction(actionIndex + 1);
   };
 
+  const handleUnlockRoom2 = () => {
+    playClick(1200);
+    onComplete();
+  };
+
   const current = ACTIONS[actionIndex];
 
   return (
@@ -91,6 +96,11 @@ export default function StepOne({ onComplete }: StepOneProps) {
         </h2>
         <p className="text-slate-400 text-sm mt-2 leading-relaxed max-w-xl">
           Healthy sleep restores energy. In ME/CFS, rest often fails to recharge the body at all.
+        </p>
+        <p className="text-xs text-violet-300/70 mt-3 leading-relaxed max-w-xl font-mono">
+          Tip: Want a quicker path through the experience? You can click{' '}
+          <span className="text-violet-300">Unlock Room 2 now</span> at the bottom anytime to
+          move on.
         </p>
       </header>
 
@@ -185,27 +195,28 @@ export default function StepOne({ onComplete }: StepOneProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex flex-col gap-6 py-2"
+            className="py-2"
           >
             <p className="text-sm text-slate-300 leading-relaxed">
               For a quick online experience, this session was shortened. In real rest, however,
               people with ME/CFS are like the regular population who must shift posture every so
               often — except that those interruptions mean they cannot obtain effective rest.
             </p>
-            <button
-              id="proceed-step-two-btn"
-              onClick={() => {
-                playClick(1200);
-                onComplete();
-              }}
-              className="self-start px-5 py-2.5 accent-btn font-mono text-xs rounded flex items-center gap-1.5 cursor-pointer"
-            >
-              Continue to Stage 02
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="mt-8 pt-5 border-t border-white/10">
+        <button
+          id="unlock-room-2-btn"
+          type="button"
+          onClick={handleUnlockRoom2}
+          className="w-full px-5 py-3 border border-violet-300/45 text-violet-300 hover:bg-violet-300/10 hover:border-violet-300/70 font-mono text-sm rounded flex items-center justify-center gap-2 transition-all cursor-pointer"
+        >
+          Unlock Room 2 now
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
     </div>
   );
 }
