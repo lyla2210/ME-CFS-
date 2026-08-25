@@ -75,8 +75,8 @@ export default function SimulationApp() {
       
       <CyberGrid />
 
-      {/* Minimal top nav — matches reference */}
-      <header className="z-10 px-4 py-4 md:px-8 flex justify-end">
+      {/* Fixed top nav — stays at viewport top, does not scroll */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3 md:px-8 flex justify-end bg-black/95 backdrop-blur-md border-b border-white/8">
         <nav className="flex items-stretch border border-white/12 rounded overflow-hidden font-mono text-[11px] tracking-[0.12em]">
           <button 
             id="tab-simulation"
@@ -115,7 +115,7 @@ export default function SimulationApp() {
       </header>
 
       {/* MAIN CONTENT PORTAL */}
-      <main className="z-10 flex-1 w-full max-w-6xl mx-auto px-4 py-8 md:py-12 flex flex-col justify-center items-center">
+      <main className="z-10 flex-1 w-full max-w-7xl mx-auto px-4 pt-14 pb-3 md:pt-16 md:pb-5 flex flex-col justify-center items-center">
         
         {activeTab === 'simulation' ? (
           <AnimatePresence mode="wait">
@@ -211,7 +211,7 @@ export default function SimulationApp() {
             key="theory-view"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-4xl rounded-lg border border-white/8 bg-black/85 p-6 md:p-8 space-y-6 text-sm relative"
+            className="w-full max-w-6xl rounded-lg border border-white/8 bg-black/85 p-5 md:p-6 space-y-5 text-sm relative"
           >
             <div className="flex items-center gap-2 border-b border-white/8 pb-3">
               <BookOpen className="h-5 w-5 text-white/80" />
@@ -280,7 +280,7 @@ export default function SimulationApp() {
             key="about-view"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-4xl rounded-lg border border-white/8 bg-black/85 p-6 md:p-8 space-y-6 text-sm relative"
+            className="w-full max-w-6xl rounded-lg border border-white/8 bg-black/85 p-5 md:p-6 space-y-5 text-sm relative"
           >
             <div className="flex items-center gap-2 border-b border-white/8 pb-3">
               <HelpCircle className="h-5 w-5 text-violet-300" />
@@ -377,7 +377,7 @@ export default function SimulationApp() {
       </main>
 
       {/* FOOTER RAILS */}
-      <footer className="z-10 border-t border-slate-950 bg-slate-950 py-4 px-6 text-center text-[10px] text-slate-600 font-mono flex flex-col sm:flex-row justify-between items-center gap-2">
+      <footer className="z-10 border-t border-slate-950 bg-slate-950 py-3 px-6 text-center text-[10px] text-slate-600 font-mono flex flex-col sm:flex-row justify-between items-center gap-2">
         <div>
           DESIGNED FOR AWARENESS EMULATION · © 2026 INVISIBLE PRISON
         </div>

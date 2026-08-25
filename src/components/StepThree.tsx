@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import { playClick, playWaringBeep } from '../utils/audio';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -6,12 +6,10 @@ import {
   ShieldAlert,
   Zap,
   Flame,
-  ChevronUp,
   ArrowRight,
   RotateCcw,
   Clipboard,
   Clock,
-  Monitor,
   Activity,
   AlertTriangle,
 } from 'lucide-react';
@@ -30,41 +28,163 @@ type PhaseType =
   | 'densh'
   | 'logged';
 
-type ExertionPath = 'physical' | 'ui' | null;
+type ExertionPath = 'physical' | 'dumbbell' | null;
 
 const DELAY_HOURS = [0, 6, 12, 24, 36, 48] as const;
+const SETS_TARGET = 5;
+const EXERTION_CLICKS = 10;
+const CRASH_CLICK_IMPULSE = 6.2;
+const CRASH_GRAVITY = 48;
+const CRASH_MOTION_SCALE = 50;
+const CRASH_WARN_CLICKS = 3;
+const CRASH_MAX_CLICKS = 20;
+
+function DumbbellSvg({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 40" className={`w-24 h-11 drop-shadow-[0_0_8px_currentColor] ${className ?? ''}`}>
+      <rect x="0" y="5" width="20" height="30" rx="3" fill="currentColor" />
+      <rect x="20" y="8" width="5" height="24" rx="1" fill="currentColor" opacity="0.8" />
+      <rect x="25" y="17" width="50" height="6" rx="1" fill="currentColor" />
+      <rect x="75" y="8" width="5" height="24" rx="1" fill="currentColor" opacity="0.8" />
+      <rect x="80" y="5" width="20" height="30" rx="3" fill="currentColor" />
+    </svg>
+  );
+}
+
+function TaskProgress({
+  total,
+  done,
+  variant = 'violet',
+  clickCount,
+  hint,
+}: {
+  total: number;
+  done: number;
+  variant?: 'violet' | 'red';
+  clickCount?: number;
+  hint?: string | null;
+}) {
+  const lit = variant === 'red' ? 'bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.5)]' : 'bg-violet-400 accent-dot';
+  const dotSize = total > 6 ? 'h-2 w-2' : 'h-2.5 w-2.5';
+  return (
+    <div className="w-full flex flex-col items-center gap-2 pointer-events-none">
+      <div className="flex flex-nowrap justify-center items-center gap-1.5 w-full px-1">
+        {Array.from({ length: total }).map((_, i) => (
+          <div
+            key={i}
+            className={`${dotSize} rounded-full shrink-0 transition-all duration-200 ${
+              i < done ? lit : 'bg-slate-700 border border-slate-600'
+            }`}
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-3 text-[11px] font-mono tabular-nums">
+        <span className={`font-bold ${variant === 'red' ? 'text-red-400' : 'text-violet-300'}`}>
+          {done}/{total}
+        </span>
+        {clickCount !== undefined && (
+          <span className="text-slate-500">Clicks: {clickCount}</span>
+        )}
+      </div>
+      {hint && (
+        <p className="text-[10px] font-mono text-violet-300/90 max-w-md text-center leading-relaxed px-2">
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function StepThree({ onComplete }: StepThreeProps) {
   const [phase, setPhase] = useState<PhaseType>('baseline');
   const [exertionPath, setExertionPath] = useState<ExertionPath>(null);
-  const [baselineCount, setBaselineCount] = useState(0);
-  const [crashCount, setCrashCount] = useState(0);
+
+  const [setsDone, setSetsDone] = useState(0);
+  const [baselineClickCount, setBaselineClickCount] = useState(0);
+  const [liftProgress, setLiftProgress] = useState(0);
+  const [exertionClicks, setExertionClicks] = useState(0);
+  const [crashTotalClicks, setCrashTotalClicks] = useState(0);
+  const [crashRedMode, setCrashRedMode] = useState(false);
+  const [isCrashed, setIsCrashed] = useState(false);
 
   const [fatigue, setFatigue] = useState(0);
   const [atp, setAtp] = useState(100);
-  const [dumbbellY, setDumbbellY] = useState(0);
-  const [isCrashed, setIsCrashed] = useState(false);
 
-  // Physical checklist
   const [donePushups, setDonePushups] = useState(false);
   const [doneJacks, setDoneJacks] = useState(false);
 
-  // UI-only exertion: rapid taps
-  const [uiTapCount, setUiTapCount] = useState(0);
-  const UI_TAP_TARGET = 25;
-
-  // Delayed PEM clock
   const [delayIndex, setDelayIndex] = useState(0);
   const [delayAuto, setDelayAuto] = useState(false);
   const delayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const liftChamberRef = useRef<HTMLDivElement>(null);
+  const crashPhysicsRef = useRef({ progress: 0, velocity: 0 });
+  const repLockRef = useRef(false);
+  const [maxLiftPx, setMaxLiftPx] = useState(120);
 
-  // Feedback
   const [feedback, setFeedback] = useState('');
   const [submittedLog, setSubmittedLog] = useState<string | null>(null);
 
   const hoursElapsed = DELAY_HOURS[delayIndex];
+  const showDumbbell =
+    phase === 'baseline' ||
+    (phase === 'exercise' && exertionPath === 'dumbbell') ||
+    (phase === 'crash' && !isCrashed);
 
-  // Advance the delayed-PEM clock while in the delay phase
+  const dumbbellColor =
+    isCrashed || crashRedMode
+      ? 'text-red-500'
+      : phase === 'crash'
+        ? 'text-violet-300'
+        : 'text-violet-300';
+
+  const resetLiftVisual = useCallback(() => {
+    setLiftProgress(0);
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = liftChamberRef.current;
+    if (!el) return;
+    const update = () => setMaxLiftPx(Math.max(90, el.clientHeight - 48));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [showDumbbell, phase]);
+
+  const resetCrashPhysics = useCallback(() => {
+    crashPhysicsRef.current = { progress: 0, velocity: 0 };
+    repLockRef.current = false;
+    setLiftProgress(0);
+  }, []);
+
+  const forceCrashComplete = useCallback(() => {
+    setIsCrashed(true);
+    setFatigue(100);
+    setAtp(1.2);
+    resetCrashPhysics();
+    playWaringBeep(1400, 200, 3);
+  }, [resetCrashPhysics]);
+
+  const completeCrashRep = useCallback(() => {
+    if (repLockRef.current) return;
+    repLockRef.current = true;
+    crashPhysicsRef.current.velocity = 0;
+    crashPhysicsRef.current.progress = 100;
+    setLiftProgress(100);
+    playClick(880, 0.06);
+
+    window.setTimeout(() => {
+      resetCrashPhysics();
+      setSetsDone((prev) => {
+        const next = prev + 1;
+        if (next >= SETS_TARGET) {
+          forceCrashComplete();
+        }
+        return next;
+      });
+    }, 220);
+  }, [forceCrashComplete, resetCrashPhysics]);
+
   useEffect(() => {
     if (!delayAuto || phase !== 'delay') {
       if (delayTimerRef.current) clearInterval(delayTimerRef.current);
@@ -80,7 +200,6 @@ export default function StepThree({ onComplete }: StepThreeProps) {
     };
   }, [delayAuto, phase]);
 
-  // Side effects as the clock ticks; enter crash at T+48h
   useEffect(() => {
     if (phase !== 'delay') return;
 
@@ -94,61 +213,148 @@ export default function StepThree({ onComplete }: StepThreeProps) {
     if (delayIndex >= DELAY_HOURS.length - 1) {
       setDelayAuto(false);
       playWaringBeep(900, 250, 2);
-      // Enter crash on next frame so we are not cancelled by delayAuto cleanup
       const t = setTimeout(() => {
         setPhase('crash');
         setFatigue(55);
         setAtp(48);
         setIsCrashed(false);
-        setCrashCount(0);
+        setCrashRedMode(false);
+        setSetsDone(0);
+        resetCrashPhysics();
+        setCrashTotalClicks(0);
       }, 650);
       return () => clearTimeout(t);
     }
   }, [delayIndex, phase]);
 
-  const handleBaselineLift = () => {
-    playClick(750, 0.05);
-    setBaselineCount((prev) => {
-      const next = prev + 1;
-      if (next >= 3) {
-        setTimeout(() => {
-          setPhase('path');
-          setFatigue(5);
-          setAtp(95);
-        }, 700);
+  // Crash phase: velocity + gravity — single click rises then falls to rest; rapid clicks stack
+  useEffect(() => {
+    if (phase !== 'crash' || isCrashed) return;
+
+    let raf = 0;
+    let last = performance.now();
+
+    const tick = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.04);
+      last = now;
+
+      if (!repLockRef.current) {
+        const body = crashPhysicsRef.current;
+        body.velocity -= CRASH_GRAVITY * dt;
+        body.progress += body.velocity * dt * CRASH_MOTION_SCALE;
+
+        if (body.progress <= 0) {
+          body.progress = 0;
+          if (body.velocity < 0) body.velocity = 0;
+        }
+
+        if (body.progress >= 100) {
+          body.progress = 100;
+          body.velocity = 0;
+          setLiftProgress(100);
+          completeCrashRep();
+        } else {
+          setLiftProgress(body.progress);
+        }
       }
-      return next;
-    });
-    setDumbbellY(-45);
-    setTimeout(() => setDumbbellY(0), 200);
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase, isCrashed, completeCrashRep]);
+
+  const completeRep = (onDone: (nextSets: number) => void) => {
+    setLiftProgress(100);
+    setTimeout(() => {
+      setSetsDone((prev) => {
+        const next = prev + 1;
+        onDone(next);
+        return next;
+      });
+      resetLiftVisual();
+    }, 280);
   };
 
-  const choosePath = (path: 'physical' | 'ui') => {
+  const handleDumbbellClick = () => {
+    if (isCrashed) {
+      playClick(150, 0.25);
+      return;
+    }
+
+    if (phase === 'baseline') {
+      if (setsDone >= SETS_TARGET) return;
+      playClick(750, 0.05);
+      setBaselineClickCount((c) => c + 1);
+      completeRep((next) => {
+        if (next >= SETS_TARGET) {
+          setTimeout(() => {
+            setPhase('path');
+            setSetsDone(0);
+            setFatigue(5);
+            setAtp(95);
+          }, 500);
+        }
+      });
+      return;
+    }
+
+    if (phase === 'exercise' && exertionPath === 'dumbbell') {
+      if (exertionClicks >= EXERTION_CLICKS) return;
+      playClick(600 + exertionClicks * 12, 0.04);
+      const next = exertionClicks + 1;
+      setExertionClicks(next);
+      setFatigue(Math.min(18, 8 + next * 0.4));
+      setAtp(Math.max(82, 92 - next * 0.35));
+      setLiftProgress(88);
+      setTimeout(resetLiftVisual, 220);
+      if (next >= EXERTION_CLICKS) {
+        setTimeout(() => finishExertion(), 450);
+      }
+      return;
+    }
+
+    if (phase === 'crash' && !isCrashed) {
+      if (crashTotalClicks >= CRASH_MAX_CLICKS || repLockRef.current) return;
+
+      const nextClick = crashTotalClicks + 1;
+      crashPhysicsRef.current.velocity += CRASH_CLICK_IMPULSE;
+      setCrashTotalClicks(nextClick);
+
+      if (nextClick === CRASH_WARN_CLICKS) {
+        setCrashRedMode(true);
+        playWaringBeep(700, 180, 2);
+      }
+
+      setFatigue(Math.min(100, 55 + nextClick * 2));
+      setAtp(Math.max(1.2, 48 - nextClick * 1.1));
+      playClick(Math.max(180, 520 - nextClick * 14), 0.05);
+
+      if (nextClick >= CRASH_MAX_CLICKS) {
+        window.setTimeout(() => forceCrashComplete(), 300);
+      }
+    }
+  };
+
+  const choosePath = (path: 'physical' | 'dumbbell') => {
     playClick(1000, 0.1);
     setExertionPath(path);
     setPhase('exercise');
     setFatigue(8);
     setAtp(92);
-  };
-
-  const handleUiTap = () => {
-    if (uiTapCount >= UI_TAP_TARGET) return;
-    playClick(600 + uiTapCount * 12, 0.04);
-    const next = uiTapCount + 1;
-    setUiTapCount(next);
-    // Feels "fine" — only mild cost during exertion
-    setFatigue(Math.min(18, 8 + next * 0.4));
-    setAtp(Math.max(82, 92 - next * 0.35));
-    setDumbbellY(-20);
-    setTimeout(() => setDumbbellY(0), 120);
+    if (path === 'dumbbell') {
+      setExertionClicks(0);
+      resetLiftVisual();
+    }
   };
 
   const finishExertion = () => {
     playClick(1000, 0.1);
-    // False calm: looks recovered / "I can push through"
     setPhase('falseCalm');
     setFatigue(12);
     setAtp(88);
+    resetLiftVisual();
   };
 
   const startDelay = () => {
@@ -164,34 +370,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
     playClick(500);
     setDelayAuto(false);
     if (delayTimerRef.current) clearInterval(delayTimerRef.current);
-    // Jumping to final tick lets the delayIndex effect open the crash phase
     setDelayIndex(DELAY_HOURS.length - 1);
-  };
-
-  const handleCrashLift = () => {
-    if (isCrashed) {
-      playClick(150, 0.25);
-      return;
-    }
-
-    const nextCount = crashCount + 1;
-    setCrashCount(nextCount);
-
-    const currentFatigue = Math.min(100, 55 + nextCount * 15);
-    setFatigue(currentFatigue);
-    setAtp(Math.max(1.2, 48 - nextCount * 15.5));
-
-    const pitch = Math.max(180, 550 - nextCount * 90);
-    playClick(pitch, 0.06);
-
-    const heightMultiplier = Math.max(0.06, 1.0 - (currentFatigue / 100) * 1.1);
-    setDumbbellY(-28 * heightMultiplier);
-    setTimeout(() => setDumbbellY(0), 320);
-
-    if (currentFatigue >= 100) {
-      setIsCrashed(true);
-      playWaringBeep(1400, 200, 4);
-    }
   };
 
   const goToDensh = () => {
@@ -213,22 +392,25 @@ export default function StepThree({ onComplete }: StepThreeProps) {
     if (delayTimerRef.current) clearInterval(delayTimerRef.current);
     setPhase('baseline');
     setExertionPath(null);
-    setBaselineCount(0);
-    setCrashCount(0);
+    setSetsDone(0);
+    setBaselineClickCount(0);
+    resetLiftVisual();
+    resetCrashPhysics();
+    setExertionClicks(0);
+    setCrashTotalClicks(0);
+    setCrashRedMode(false);
+    resetCrashPhysics();
     setFatigue(0);
     setAtp(100);
-    setDumbbellY(0);
     setIsCrashed(false);
     setDonePushups(false);
     setDoneJacks(false);
-    setUiTapCount(0);
     setDelayIndex(0);
     setFeedback('');
     setSubmittedLog(null);
   };
 
   const physicalReady = donePushups && doneJacks;
-  const uiReady = uiTapCount >= UI_TAP_TARGET;
 
   const phaseLabel = () => {
     switch (phase) {
@@ -253,10 +435,105 @@ export default function StepThree({ onComplete }: StepThreeProps) {
     }
   };
 
+  const liftProgressTarget = (): {
+    total: number;
+    done: number;
+    variant: 'violet' | 'red';
+  } | null => {
+    if (phase === 'baseline') return { total: SETS_TARGET, done: setsDone, variant: 'violet' };
+    if (phase === 'exercise' && exertionPath === 'dumbbell') {
+      return { total: EXERTION_CLICKS, done: exertionClicks, variant: 'violet' };
+    }
+    if (phase === 'crash' && !isCrashed) {
+      return { total: SETS_TARGET, done: setsDone, variant: crashRedMode ? 'red' : 'violet' };
+    }
+    return null;
+  };
+
+  const renderDumbbellZone = () => {
+    const progress = liftProgressTarget();
+    const crashHint =
+      phase === 'crash' && !isCrashed && crashTotalClicks >= CRASH_WARN_CLICKS
+        ? 'Having trouble reaching the target line with a single click like before? Try clicking the dumbbell quickly and multiple times.'
+        : null;
+
+    const clickCount =
+      phase === 'baseline'
+        ? baselineClickCount
+        : phase === 'exercise' && exertionPath === 'dumbbell'
+          ? exertionClicks
+          : phase === 'crash'
+            ? crashTotalClicks
+            : undefined;
+
+    const liftY = (liftProgress / 100) * maxLiftPx;
+    const isCrashLift = phase === 'crash';
+
+    return (
+      <div className="flex-1 flex flex-col w-full min-h-0">
+        <div
+          ref={liftChamberRef}
+          className="relative flex-1 min-h-[200px] flex items-end justify-center"
+        >
+          <div className="absolute left-1/2 top-6 bottom-6 w-px bg-slate-800/40 -translate-x-1/2" />
+
+          <div className="absolute left-6 right-6 top-6 flex items-center gap-2 pointer-events-none">
+            <div className="flex-1 border-t border-dashed border-violet-400/45" />
+            <span className="text-[8px] font-mono text-violet-300/60 uppercase tracking-widest shrink-0">
+              Target line
+            </span>
+          </div>
+
+          {isCrashLift ? (
+            <button
+              type="button"
+              id="physio-dumbbell-item"
+              onClick={handleDumbbellClick}
+              disabled={isCrashed || crashTotalClicks >= CRASH_MAX_CLICKS}
+              style={{ transform: `translateY(-${liftY}px)` }}
+              className={`absolute bottom-6 flex flex-col items-center justify-center cursor-pointer select-none transition-colors duration-200 disabled:cursor-default disabled:opacity-50 ${dumbbellColor} hover:brightness-110 active:scale-[0.97]`}
+              aria-label="Click to lift dumbbell"
+            >
+              <DumbbellSvg />
+            </button>
+          ) : (
+            <motion.button
+              type="button"
+              id="physio-dumbbell-item"
+              onClick={handleDumbbellClick}
+              disabled={
+                isCrashed ||
+                (phase === 'baseline' && setsDone >= SETS_TARGET) ||
+                (phase === 'exercise' && exertionClicks >= EXERTION_CLICKS)
+              }
+              animate={{ y: -liftY }}
+              transition={{ type: 'spring', damping: 14, stiffness: 200 }}
+              className={`absolute bottom-6 flex flex-col items-center justify-center cursor-pointer select-none transition-colors duration-300 disabled:cursor-default disabled:opacity-60 ${dumbbellColor} hover:brightness-110 active:scale-[0.97]`}
+              aria-label="Click to lift dumbbell"
+            >
+              <DumbbellSvg />
+            </motion.button>
+          )}
+        </div>
+
+        {progress && (
+          <div className="shrink-0 py-3 px-2">
+            <TaskProgress
+              total={progress.total}
+              done={progress.done}
+              variant={progress.variant}
+              clickCount={clickCount}
+              hint={crashHint}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
-      {/* Title */}
-      <div className="mb-6 border-b border-white/10 pb-4">
+    <div className="w-full max-w-6xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-4 md:p-5 font-sans">
+      <div className="mb-4 border-b border-white/10 pb-3">
         <h2
           id="step-three-title"
           className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2"
@@ -271,10 +548,9 @@ export default function StepThree({ onComplete }: StepThreeProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Left: meters + guidance */}
-        <div className="lg:col-span-5 flex flex-col justify-between p-5 border border-slate-800 bg-slate-900/60 rounded">
-          <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="lg:col-span-5 flex flex-col justify-between p-4 border border-slate-800 bg-slate-900/60 rounded">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold text-white/70 tracking-wider font-mono">
                 MITOCHONDRIAL ENERGY CORE
@@ -298,9 +574,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
               <div className="w-full bg-slate-950 h-2 rounded overflow-hidden">
                 <div
                   className={`h-full transition-all duration-300 ${
-                    fatigue > 70
-                      ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]'
-                      : 'accent-progress'
+                    fatigue > 70 ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : 'accent-progress'
                   }`}
                   style={{ width: `${fatigue}%` }}
                 />
@@ -347,8 +621,9 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                   className="text-xs text-slate-300 leading-relaxed bg-black/60 p-3 rounded-md border-l-2 border-white/20 font-mono"
                 >
                   <span className="text-violet-300 font-bold block mb-1">1 · Baseline</span>
-                  Lift the light 2kg load three times. Notice how easy and responsive it feels—healthy
-                  homeostasis before any metabolic debt is incurred.
+                  Click the dumbbell to lift it to the target line. Complete{' '}
+                  <span className="text-white/85">{SETS_TARGET} sets</span>—each set takes a single
+                  click. Notice how responsive it feels.
                 </motion.div>
               )}
 
@@ -361,8 +636,8 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                   className="text-xs text-slate-300 leading-relaxed bg-black/60 p-3 rounded-md accent-border-l font-mono"
                 >
                   <span className="text-violet-300 font-bold block mb-1">2 · Choose exertion</span>
-                  Physical participation is optional. Both paths create the same teaching beat: activity
-                  that feels okay now, then delayed collapse.
+                  Optional real-world movement, or keep clicking the same 2kg dumbbell. Both paths
+                  lead to the same delayed crash.
                 </motion.div>
               )}
 
@@ -383,10 +658,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                       </span>
                     </>
                   ) : (
-                    <>
-                      Rapidly tap the UI load {UI_TAP_TARGET} times. You should still feel mostly fine
-                      afterward—that is intentional.
-                    </>
+                    <>Click the dumbbell 10 times.</>
                   )}
                 </motion.div>
               )}
@@ -428,8 +700,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                   className="text-xs text-slate-300 leading-relaxed bg-black/60 p-3 rounded-md border-l-2 border-rose-500 font-mono"
                 >
                   <span className="text-rose-400 font-bold block mb-1">6 · Delayed crash (T+48h)</span>
-                  Same labeled 2kg load. Same button. Different body. Try lifting—watch ATP collapse.
-                  This is a tiny slice of what PEM feels like.
+                  Click the 2 kg dumbbell; reaching the target line counts as one rep.
                 </motion.div>
               )}
 
@@ -474,95 +745,17 @@ export default function StepThree({ onComplete }: StepThreeProps) {
           </div>
         </div>
 
-        {/* Right: interactive stage */}
-        <div className="lg:col-span-7 border border-slate-800 bg-slate-900/30 rounded p-5 relative overflow-hidden flex flex-col justify-between min-h-[400px]">
-          {isCrashed && (
-            <div className="absolute inset-0 bg-red-950/15 animate-pulse z-0 pointer-events-none border border-red-500/20" />
+        <div className="lg:col-span-7 bg-black/50 rounded relative overflow-hidden flex flex-col min-h-[360px]">
+          {(isCrashed || crashRedMode) && (
+            <div className="absolute inset-0 bg-red-950/10 animate-pulse z-0 pointer-events-none" />
           )}
 
-          <div className="z-10 bg-black/80 py-4 px-6 rounded border border-slate-800 flex-1 flex flex-col items-center justify-center relative">
-            {/* Dumbbell visual — shown in lift-related phases */}
-            {(phase === 'baseline' ||
-              phase === 'exercise' ||
-              phase === 'crash' ||
-              phase === 'falseCalm') && (
-              <div className="relative w-full h-36 flex items-center justify-center border-b border-dashed border-slate-800 mb-2">
-                <div className="absolute left-1/2 top-4 bottom-0 w-[1px] bg-slate-800" />
-                <div className="absolute bottom-0 inset-x-8 h-1 bg-slate-800" />
-
-                <div className="absolute top-4 right-4 font-mono text-[9px] text-slate-500 text-right uppercase">
-                  <div>PEM G-LOAD MULTIPLIER:</div>
-                  <div
-                    className={`font-bold ${
-                      isCrashed ? 'text-red-500 text-xs' : 'accent-mark'
-                    }`}
-                  >
-                    {isCrashed
-                      ? '24.50 G [CRITICAL]'
-                      : phase === 'crash'
-                        ? `${(4.2 + fatigue * 0.08).toFixed(2)} G`
-                        : '1.00 G [NOMINAL]'}
-                  </div>
-                </div>
-
-                <motion.div
-                  id="physio-dumbbell-item"
-                  animate={{ y: dumbbellY }}
-                  transition={{ type: 'spring', damping: 14, stiffness: 90 }}
-                  className={`absolute flex flex-col items-center justify-center transition-colors duration-200 ${
-                    isCrashed
-                      ? 'text-red-500'
-                      : phase === 'crash'
-                        ? 'text-white/70'
-                        : 'text-violet-300'
-                  }`}
-                  style={{ bottom: 4 }}
-                >
-                  {fatigue > 70 && (
-                    <div className="text-[7.5px] bg-red-950 border border-red-500/30 px-1 rounded animate-bounce text-red-400 mb-1 font-mono uppercase tracking-widest font-extrabold">
-                      PEM Threshold Breached
-                    </div>
-                  )}
-                  <svg viewBox="0 0 100 40" className="w-24 h-11 drop-shadow-[0_0_8px_currentColor]">
-                    <rect x="0" y="5" width="20" height="30" rx="3" fill="currentColor" />
-                    <rect x="20" y="8" width="5" height="24" rx="1" fill="currentColor" opacity="0.8" />
-                    <rect x="25" y="17" width="50" height="6" rx="1" fill="currentColor" />
-                    <rect x="75" y="8" width="5" height="24" rx="1" fill="currentColor" opacity="0.8" />
-                    <rect x="80" y="5" width="20" height="30" rx="3" fill="currentColor" />
-                  </svg>
-                  <span className="text-[10px] font-mono mt-1 font-bold tracking-wider">
-                    2kg [LABELLED]
-                  </span>
-                </motion.div>
-              </div>
-            )}
-
-            <div className="mt-2 w-full flex justify-center z-20">
+          <div className="z-10 flex-1 flex flex-col min-h-0 p-2">
+            {showDumbbell ? (
+              renderDumbbellZone()
+            ) : (
+            <div className="flex-1 flex flex-col items-center justify-center px-4 py-4 w-full">
               <AnimatePresence mode="wait">
-                {/* Baseline */}
-                {phase === 'baseline' && (
-                  <motion.div
-                    key="bas-btn"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="w-full flex justify-center"
-                  >
-                    <button
-                      id="dumbbell-lift-trigger-bas"
-                      onClick={handleBaselineLift}
-                      className="px-6 py-3 w-4/5 rounded accent-btn active:scale-95 transition-all font-mono text-xs font-bold shadow-[0_0_12px_rgba(255,255,255,0.08)] cursor-pointer flex flex-col items-center"
-                    >
-                      <ChevronUp className="h-4 w-4 animate-bounce shrink-0 mb-0.5" />
-                      <span>Lift Dumbbell A (2kg)</span>
-                      <span className="text-[9px] opacity-65 font-normal mt-0.5">
-                        Lifts logged: {baselineCount} / 3
-                      </span>
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* Path choice */}
                 {phase === 'path' && (
                   <motion.div
                     key="path-choice"
@@ -572,7 +765,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                     className="w-full space-y-3"
                   >
                     <p className="text-[10px] text-slate-500 font-mono text-center uppercase tracking-wider">
-                      Select how you want to incur metabolic debt
+                      How do you want to incur metabolic debt?
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <button
@@ -589,23 +782,22 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                         </p>
                       </button>
                       <button
-                        id="path-ui"
-                        onClick={() => choosePath('ui')}
+                        id="path-dumbbell"
+                        onClick={() => choosePath('dumbbell')}
                         className="p-4 rounded border border-white/10 bg-white/5 hover:border-white/20 text-left transition-all cursor-pointer group"
                       >
-                        <Monitor className="h-5 w-5 text-violet-300 mb-2" />
+                        <Dumbbell className="h-5 w-5 text-violet-300 mb-2" />
                         <div className="text-xs font-mono font-bold text-white/85 mb-1">
-                          Interface-only path
+                          Dumbbell path
                         </div>
                         <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                          Rapid tap the UI load. Same delayed-PEM lesson, no real-world exercise.
+                          Click the same 2kg load {EXERTION_CLICKS} times. No real-world exercise needed.
                         </p>
                       </button>
                     </div>
                   </motion.div>
                 )}
 
-                {/* Exercise */}
                 {phase === 'exercise' && exertionPath === 'physical' && (
                   <motion.div
                     key="exe-physical"
@@ -619,8 +811,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                       Optional physical checklist
                     </div>
                     <p className="text-[10px] text-slate-500 font-sans leading-relaxed">
-                      Stop immediately if dizzy, in pain, or unwell. You can switch to the
-                      interface-only path anytime.
+                      Stop immediately if dizzy, in pain, or unwell.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
                       <label className="flex items-center gap-2 p-2 rounded bg-slate-950 border border-slate-800 cursor-pointer">
@@ -648,73 +839,22 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                         <span>I finished 5 jumping jacks</span>
                       </label>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <button
-                        id="switch-to-ui"
-                        onClick={() => {
-                          playClick();
-                          setExertionPath('ui');
-                          setUiTapCount(0);
-                        }}
-                        className="flex-1 py-2 text-[10px] font-mono text-slate-400 border border-slate-800 rounded hover:text-slate-200 cursor-pointer"
-                      >
-                        Switch to interface-only
-                      </button>
-                      <button
-                        id="proceed-after-physical"
-                        disabled={!physicalReady}
-                        onClick={finishExertion}
-                        className={`flex-1 py-2.5 font-mono text-xs font-bold rounded transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                          physicalReady
-                            ? 'accent-btn'
-                            : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                        }`}
-                      >
-                        <span>I&apos;m done — continue</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {phase === 'exercise' && exertionPath === 'ui' && (
-                  <motion.div
-                    key="exe-ui"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="w-full flex flex-col items-center gap-3"
-                  >
                     <button
-                      id="ui-exertion-tap"
-                      onClick={handleUiTap}
-                      disabled={uiReady}
-                      className={`px-6 py-3 w-4/5 rounded font-mono text-xs font-bold cursor-pointer flex flex-col items-center transition-all ${
-                        uiReady
-                          ? 'bg-slate-800 text-slate-500 cursor-default'
-                          : 'accent-btn active:scale-95 shadow-[0_0_12px_rgba(255,255,255,0.08)]'
+                      id="proceed-after-physical"
+                      disabled={!physicalReady}
+                      onClick={finishExertion}
+                      className={`w-full py-2.5 font-mono text-xs font-bold rounded transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        physicalReady
+                          ? 'accent-btn'
+                          : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                       }`}
                     >
-                      <ChevronUp className="h-4 w-4 animate-bounce shrink-0 mb-0.5" />
-                      <span>Rapid Lift (UI exertion)</span>
-                      <span className="text-[9px] opacity-65 font-normal mt-0.5">
-                        Taps: {uiTapCount} / {UI_TAP_TARGET}
-                      </span>
+                      <span>I&apos;m done — continue</span>
+                      <ArrowRight className="h-4 w-4" />
                     </button>
-                    {uiReady && (
-                      <button
-                        id="proceed-after-ui"
-                        onClick={finishExertion}
-                        className="px-6 py-2.5 w-4/5 rounded accent-btn font-mono text-xs font-bold cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        Exertion complete — continue
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    )}
                   </motion.div>
                 )}
 
-                {/* False calm */}
                 {phase === 'falseCalm' && (
                   <motion.div
                     key="false-calm"
@@ -743,7 +883,6 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                   </motion.div>
                 )}
 
-                {/* Delay clock */}
                 {phase === 'delay' && (
                   <motion.div
                     key="delay-clock"
@@ -777,7 +916,6 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                       </p>
                     </div>
 
-                    {/* Timeline ticks */}
                     <div className="flex justify-between px-1">
                       {DELAY_HOURS.map((h, i) => (
                         <div key={h} className="flex flex-col items-center gap-1">
@@ -803,32 +941,6 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                       className="w-full py-2 accent-btn-ghost rounded cursor-pointer"
                     >
                       Skip ahead to T+48h crash
-                    </button>
-                  </motion.div>
-                )}
-
-                {/* Crash lifts */}
-                {phase === 'crash' && !isCrashed && (
-                  <motion.div
-                    key="crash-btn"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="w-full flex flex-col items-center gap-2"
-                  >
-                    <p className="text-[10px] text-rose-400/80 font-mono text-center mb-1">
-                      Two days later. Same 2kg label. Try it.
-                    </p>
-                    <button
-                      id="dumbbell-lift-trigger-crash"
-                      onClick={handleCrashLift}
-                      className="px-6 py-3 w-4/5 rounded bg-rose-950/20 text-rose-300 border border-red-500/40 hover:bg-rose-900/30 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.2)] font-mono text-xs font-bold cursor-pointer flex flex-col items-center"
-                    >
-                      <ChevronUp className="h-4 w-4 animate-bounce shrink-0 mb-0.5" />
-                      <span>Lift Dumbbell B (Labeled 2kg)</span>
-                      <span className="text-[9px] opacity-65 font-normal mt-0.5">
-                        Attempts: {crashCount}
-                      </span>
                     </button>
                   </motion.div>
                 )}
@@ -859,7 +971,6 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                   </motion.div>
                 )}
 
-                {/* Densh */}
                 {phase === 'densh' && (
                   <motion.div
                     key="densh-panel"
@@ -881,7 +992,7 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                         <ul className="text-[11px] text-slate-300 font-sans space-y-1.5 leading-relaxed list-disc list-inside">
                           <li>Minutes of awkward effort</li>
                           <li>A compressed &quot;wait&quot; for 48 hours</li>
-                          <li>A heavy UI lift you can walk away from</li>
+                          <li>A heavy lift you can walk away from</li>
                           <li>You can restart this stage anytime</li>
                         </ul>
                       </div>
@@ -925,7 +1036,6 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                   </motion.div>
                 )}
 
-                {/* Logged */}
                 {phase === 'logged' && (
                   <motion.div
                     key="logged-confirmation"
@@ -948,33 +1058,12 @@ export default function StepThree({ onComplete }: StepThreeProps) {
                 )}
               </AnimatePresence>
             </div>
-          </div>
-
-          <AnimatePresence>
-            {(phase === 'crash' || phase === 'densh') && isCrashed && phase === 'crash' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-4 border border-rose-500/30 bg-red-950/20 p-4 rounded text-xs font-mono leading-relaxed"
-                id="pem-crash-details"
-              >
-                <div className="font-bold mb-1 flex items-center gap-1 text-rose-400">
-                  <Zap className="h-3.5 w-3.5 animate-pulse" />
-                  Delayed PEM (T+48h):
-                </div>
-                <span className="text-slate-300 font-sans">
-                  The effort that felt tolerable yesterday is collecting interest. This is why graded
-                  exercise can push people off a cliff—progress looks fine until the delayed crash
-                  erases the baseline.
-                </span>
-              </motion.div>
             )}
-          </AnimatePresence>
+          </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-6 border-t border-slate-800 pt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div className="mt-4 border-t border-slate-800 pt-3 flex flex-col sm:flex-row justify-between items-center gap-3">
         <div className="flex items-center gap-3 text-[11px] text-slate-500 font-mono">
           <ShieldAlert className="h-4 w-4 text-slate-500 shrink-0" />
           <span>

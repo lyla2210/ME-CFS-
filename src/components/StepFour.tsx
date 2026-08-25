@@ -75,10 +75,10 @@ export default function StepFour({ onComplete }: StepFourProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
+    <div className="w-full max-w-6xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-4 md:p-5 font-sans">
       
       {/* Title Header */}
-      <div className="mb-6 border-b border-white/10 pb-4">
+      <div className="mb-4 border-b border-white/10 pb-3">
         <h2 id="step-four-title" className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2">
           <ClipboardCheck className="h-5 w-5 text-violet-300 animate-pulse" />
           STAGE <span className="text-violet-300">04</span>: The Gaslighting Verdict [The Perfect Lab Results]
@@ -95,7 +95,7 @@ export default function StepFour({ onComplete }: StepFourProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-4"
           >
             {/* Symptom questionnaire input */}
             <div className="lg:col-span-7 space-y-4">

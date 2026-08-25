@@ -121,10 +121,10 @@ export default function StepOne({ onComplete }: StepOneProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
+    <div className="w-full max-w-6xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-4 md:p-5 font-sans">
       
       {/* Header and Introduction */}
-      <div className="mb-6 border-b border-white/10 pb-4">
+      <div className="mb-4 border-b border-white/10 pb-3">
         <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
           <div>
             <h2 id="step-one-title" className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2">
@@ -144,11 +144,11 @@ export default function StepOne({ onComplete }: StepOneProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[380px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[300px]">
         
         {/* Left Control Column */}
-        <div className="lg:col-span-5 flex flex-col justify-between p-5 border border-slate-800 bg-slate-900/60 rounded">
-          <div className="space-y-4">
+        <div className="lg:col-span-5 flex flex-col justify-between p-4 border border-slate-800 bg-slate-900/60 rounded">
+          <div className="space-y-3">
             <h3 className="text-xs font-semibold text-white/70 tracking-wider font-mono">PHYSIOLOGICAL SIMULATOR</h3>
             
             {/* Round display status */}
@@ -216,7 +216,7 @@ export default function StepOne({ onComplete }: StepOneProps) {
         </div>
 
         {/* Right Dashboard Column */}
-        <div className="lg:col-span-7 flex flex-col justify-between border border-slate-800 bg-slate-900/30 rounded p-5 relative overflow-hidden">
+        <div className="lg:col-span-7 flex flex-col justify-between border border-slate-800 bg-slate-900/30 rounded p-4 relative overflow-hidden">
           
           {postureInterrupted && (
             <div className="absolute inset-0 bg-red-950/10 animate-pulse pointer-events-none z-0 border border-red-500/20" />

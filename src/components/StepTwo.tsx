@@ -435,10 +435,10 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-6 md:p-8 font-sans">
+    <div className="w-full max-w-6xl mx-auto rounded-lg border border-white/10 overflow-hidden bg-black/80 p-4 md:p-5 font-sans">
       
       {/* Header Info */}
-      <div className="mb-6 border-b border-white/10 pb-4">
+      <div className="mb-4 border-b border-white/10 pb-3">
         <h2 id="step-two-title" className="text-xl md:text-2xl font-semibold tracking-tight text-white/80 font-mono flex items-center gap-2">
           <Brain className="h-5 w-5 text-violet-300 animate-pulse" />
           STAGE <span className="text-violet-300">02</span>: Dissolving Speech [Cognitive Fog & Dysphasia]
@@ -458,7 +458,7 @@ export default function StepTwo({ onComplete }: StepTwoProps) {
           setMousePos({ x: -100, y: -100 });
           lastMousePos.current = { x: -100, y: -100 };
         }}
-        className={`relative min-h-[460px] rounded border border-slate-800 bg-black/60 p-4 md:p-6 overflow-hidden select-none transition-all duration-1000 ${
+        className={`relative min-h-[340px] rounded border border-slate-800 bg-black/60 p-3 md:p-4 overflow-hidden select-none transition-all duration-1000 ${
           taskIndex > 1 && !isBlackout ? 'cursor-none' : 'cursor-default'
         } ${isBlackout ? 'bg-black border-black shadow-[inset_0_0_50px_rgba(0,0,0,1)]' : ''}`}
       >

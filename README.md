@@ -1,20 +1,39 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Invisible Prison — ME/CFS 体验模拟器
 
-# Run and deploy your AI Studio app
+一个关于 **ME/CFS（肌痛性脑脊髓炎 / 慢性疲劳综合征）** 的沉浸式感官体验项目，帮助健康人理解非恢复性睡眠、脑雾、延迟性 PEM 与「检查结果正常」带来的沟通困境。
 
-This contains everything you need to run your app locally.
+在线体验：[me-cfs.vercel.app](https://me-cfs.vercel.app)
 
-View your app in AI Studio: https://ai.studio/apps/fc0198d5-c3cd-41d9-922a-e689565c4d19
+## 本地运行
 
-## Run Locally
+**环境要求：** Node.js 18+
 
-**Prerequisites:**  Node.js
+```bash
+npm install
+npm run dev
+```
 
+浏览器访问 `http://localhost:3000`。
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 构建与预览
+
+```bash
+npm run build
+npm run preview
+```
+
+## 项目结构
+
+| 路径 | 说明 |
+|------|------|
+| `/` | 首页：Hero → 空间地图 → 房间入口 |
+| `/room/:id` | 各体验房间说明页 |
+| `/simulation` | 四阶段完整模拟器 |
+
+## 技术栈
+
+React 19 · Vite 6 · TypeScript · Tailwind CSS v4 · Motion · React Router
+
+## 免责声明
+
+本模拟器为共情教育体验，不能替代医学诊断，也不代表真实 ME/CFS 患者的全部感受。Stage 03 提供可选的轻度身体活动路径，请根据自身情况选择，不适时立即停止。

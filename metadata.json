@@ -1,6 +1,0 @@
-{
-  "name": "Invisible Prison - ME/CFS Sim",
-  "description": "An interactive sensory simulator for Myalgic Encephalomyelitis / Chronic Fatigue Syndrome (ME/CFS) experiencing chronic exhaustion, neurological fog, and post-exertional crash.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
